@@ -103,6 +103,67 @@ RLS activo en todas las tablas.
 /api/chat                → Endpoint Claude Agent
 ```
 
+## Memoria de direccion actualizada
+
+### Referencia funcional descartable
+- La carpeta externa `ecored/` fue usada solo como referencia de logica y flujos.
+- No se debe copiar su diseno visual.
+- Se rescata la idea de producto: portal ciudadano, portal municipal, scanner IA, EcoPuntos, retos, historial, chat, onboarding institucional, ranking, metricas, reportes y QR.
+- Se descarta el estilo editorial/literario: serif decorativa, cursivas, textos largos, bordes negros duros, tono poetico y cualquier caracter roto tipo `Ã³`, `Â¡`, `â€¢`.
+
+### Direccion visual oficial
+EcoRed debe sentirse como una PWA eco-tech moderna, limpia, comunitaria y practica. Debe parecer una app real de producto, no una landing decorativa ni un documento editorial.
+
+- Base visual clara, ordenada y premium.
+- Paleta oficial: verde `#00897B`, azul institucional `#1565C0`, fondos suaves verde/azul, texto `#1A1A2E`.
+- Tipografia: Plus Jakarta Sans para headings, Inter para cuerpo, JetBrains Mono para datos.
+- UI basada en tarjetas suaves, radios moderados, jerarquia clara, buen espaciado y componentes consistentes.
+- Animaciones sutiles y funcionales, no efectos decorativos excesivos.
+- Iconografia consistente con `lucide-react`.
+- Prioridad de diseno: velocidad de lectura, confianza, usabilidad y demo fuerte para hackathon.
+
+### Stack oficial
+EcoRed se construye sobre el stack oficial del repo, no sobre el stack del preview.
+
+- Framework: Next.js App Router.
+- Lenguaje: TypeScript.
+- UI: React, Tailwind CSS v4, shadcn/ui.
+- DB/Auth/Realtime: Supabase.
+- IA: Claude/Anthropic.
+- PWA: `@ducanh2912/next-pwa`.
+- Deploy: Vercel.
+- Package manager: pnpm.
+- QR: `qrcode.react`.
+- Mapas: Leaflet / react-leaflet.
+- Graficos: preferir Recharts si se necesita dashboard analitico.
+
+No usar Vite ni Gemini como base del proyecto oficial. El preview puede inspirar flujos, pero la implementacion final debe vivir en Next.js, Supabase y Claude.
+
+### Funcionalidades que se deben conservar
+- Selector de portal: ciudadano / gestion municipal.
+- Navegacion superior, sidebar desktop y navegacion inferior mobile.
+- Indicador de IA activa y notificaciones con dropdown.
+- Dashboard ciudadano con bienvenida, EcoPuntos, kg reciclados, CO2 evitado, reto semanal e historial filtrable.
+- Modal de detalle de escaneo con instrucciones de disposicion y mensaje de impacto.
+- Scanner IA con camara real o simulada, HUD, presets, resultado de analisis y checklist obligatorio antes de acreditar puntos.
+- EcoAsistente conversacional con preguntas sugeridas, burbujas, estado escribiendo, autoscroll y envio personalizado.
+- Dashboard municipal con metricas globales, grafico mensual, top comunidades, campanas/reto escolares y exportacion.
+- Onboarding institucional tipo wizard: tipo de organizacion, datos, ubicaciones/aulas/puntos de acopio, QR final y acciones de copiar/descargar.
+
+### Disciplina tipo Angular aplicada a Next.js/React
+Aunque EcoRed use React/Next, se adoptan beneficios de Angular: estructura guiada, convenciones fuertes y separacion clara de responsabilidades.
+
+Principios:
+- Arquitectura modular por dominio: `features/citizen`, `features/scanner`, `features/assistant`, `features/institution`, `features/onboarding`.
+- Separar UI, estado, servicios, tipos y logica de negocio.
+- No meter llamadas a Supabase, Claude o `fetch` dispersas dentro de componentes visuales grandes.
+- Centralizar servicios/helper modules: `authService`, `scanService`, `chatService`, `impactService`, `organizationService`, `challengeService`.
+- Usar contratos TypeScript claros: `UserProfile`, `ScanResult`, `Organization`, `Challenge`, `ImpactLog`, `RecyclingPoint`, `ChatMessage`.
+- Definir estados predecibles para flujos: `idle`, `loading`, `success`, `error`, `empty`, `simulated`.
+- Formularios con validacion clara, datos normalizados y errores visibles.
+- Componentes reutilizables para layout, cards, buttons, badges, dialogs, navigation, metric widgets y empty states.
+- Convenciones antes que libertad extrema: React da flexibilidad, pero EcoRed debe mantenerse ordenado, entendible y escalable para el equipo.
+
 ## Variables de entorno necesarias (.env.local)
 ```
 NEXT_PUBLIC_SUPABASE_URL=
