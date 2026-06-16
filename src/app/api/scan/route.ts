@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import type { WasteCategory } from "@/types/database"
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY ?? "" })
 
 const CATEGORY_META: Record<WasteCategory, { points: number; co2_kg: number; waste_kg: number }> = {
   plastic:    { points: 15, co2_kg: 0.50, waste_kg: 0.10 },
