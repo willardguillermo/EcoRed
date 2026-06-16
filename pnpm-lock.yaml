@@ -16,7 +16,7 @@ importers:
         version: 1.5.0(@types/react@19.2.17)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@ducanh2912/next-pwa':
         specifier: ^10.2.9
-        version: 10.2.9(next@16.2.7(@babel/core@7.29.7)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(webpack@5.107.2)
+        version: 10.2.9(next@16.2.7(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(webpack@5.107.2)
       '@supabase/ssr':
         specifier: ^0.10.3
         version: 0.10.3(@supabase/supabase-js@2.108.0)
@@ -29,6 +29,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      groq-sdk:
+        specifier: ^1.2.1
+        version: 1.2.1
       leaflet:
         specifier: ^1.9.4
         version: 1.9.4
@@ -37,7 +40,7 @@ importers:
         version: 1.17.0(react@19.2.4)
       next:
         specifier: 16.2.7
-        version: 16.2.7(@babel/core@7.29.7)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        version: 16.2.7(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -1050,6 +1053,10 @@ packages:
   '@nolyfill/is-core-module@1.0.39':
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
     engines: {node: '>=12.4.0'}
+
+  '@opentelemetry/api@1.9.1':
+    resolution: {integrity: sha512-gLyJlPHPZYdAk1JENA9LeHejZe1Ti77/pTeFm/nMXmQH/HFZlcS/O2XJB+L8fkbrNSqhdtlvjBVjxwUYanNH5Q==}
+    engines: {node: '>=8.0.0'}
 
   '@react-leaflet/core@3.0.0':
     resolution: {integrity: sha512-3EWmekh4Nz+pGcr+xjf0KNyYfC3U2JjnkWsh0zcqaexYqmmB5ZhH37kz41JXGmKzpaMZCnPofBBm64i+YrEvGQ==}
@@ -2407,6 +2414,10 @@ packages:
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
+
+  groq-sdk@1.2.1:
+    resolution: {integrity: sha512-dsDSWJRJf+n2dPiCv7zU3IsJbrh7jfSPqi6vc1q0TTK1oUF6bn+wv4P2VFdynkHpuJ0TTJ57vlpT87judPgVPA==}
+    hasBin: true
 
   has-bigints@1.1.0:
     resolution: {integrity: sha512-R3pbpkcIqv2Pm3dUwgjclDRVmWpTJW2DcMzcIhEXEx1oh/CEMObMm3KLmRJOdvhM7o4uQBnwr8pzRK2sJWIqfg==}
@@ -4709,10 +4720,10 @@ snapshots:
       which: 4.0.0
       yocto-spinner: 1.2.0
 
-  '@ducanh2912/next-pwa@10.2.9(next@16.2.7(@babel/core@7.29.7)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(webpack@5.107.2)':
+  '@ducanh2912/next-pwa@10.2.9(next@16.2.7(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(webpack@5.107.2)':
     dependencies:
       fast-glob: 3.3.2
-      next: 16.2.7(@babel/core@7.29.7)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      next: 16.2.7(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       semver: 7.6.3
       webpack: 5.107.2
       workbox-build: 7.1.1
@@ -5032,6 +5043,9 @@ snapshots:
       fastq: 1.20.1
 
   '@nolyfill/is-core-module@1.0.39': {}
+
+  '@opentelemetry/api@1.9.1':
+    optional: true
 
   '@react-leaflet/core@3.0.0(leaflet@1.9.4)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
@@ -6550,6 +6564,8 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
+  groq-sdk@1.2.1: {}
+
   has-bigints@1.1.0: {}
 
   has-flag@4.0.0: {}
@@ -7031,7 +7047,7 @@ snapshots:
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
 
-  next@16.2.7(@babel/core@7.29.7)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+  next@16.2.7(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
     dependencies:
       '@next/env': 16.2.7
       '@swc/helpers': 0.5.15
@@ -7050,6 +7066,7 @@ snapshots:
       '@next/swc-linux-x64-musl': 16.2.7
       '@next/swc-win32-arm64-msvc': 16.2.7
       '@next/swc-win32-x64-msvc': 16.2.7
+      '@opentelemetry/api': 1.9.1
       sharp: 0.34.5
     transitivePeerDependencies:
       - '@babel/core'
