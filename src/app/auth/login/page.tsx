@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,13 +11,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
-export default function LoginPage() {
-  const router = useRouter()
-  const supabase = createClient()
+function LoginForm() {
+  const router       = useRouter()
+  const searchParams = useSearchParams()
+  const next         = searchParams.get("next") ?? "/dashboard"
+  const supabase     = createClient()
 
-  const [email, setEmail] = useState("")
+  const [email,    setEmail]    = useState("")
   const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [loading,  setLoading]  = useState(false)
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -26,15 +28,16 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
-      toast.error(error.message === "Invalid login credentials"
-        ? "Correo o contraseña incorrectos"
-        : error.message
+      toast.error(
+        error.message === "Invalid login credentials"
+          ? "Correo o contraseña incorrectos"
+          : error.message
       )
       setLoading(false)
       return
     }
 
-    router.push("/dashboard")
+    router.push(next)
     router.refresh()
   }
 
@@ -87,5 +90,19 @@ export default function LoginPage() {
         </p>
       </CardContent>
     </Card>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <Card className="w-full max-w-sm shadow-sm border-border">
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 }

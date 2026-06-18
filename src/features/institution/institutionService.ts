@@ -66,3 +66,21 @@ export async function getRecentScans(supabase: SupabaseClient, orgId: string, li
     .limit(limit)
   return data ?? []
 }
+
+export async function getScanCategoryBreakdown(supabase: SupabaseClient, orgId: string) {
+  const { data } = await supabase
+    .from("scans")
+    .select("waste_category")
+    .eq("org_id", orgId)
+
+  if (!data || data.length === 0) return []
+
+  const counts = data.reduce<Record<string, number>>((acc, s) => {
+    acc[s.waste_category] = (acc[s.waste_category] ?? 0) + 1
+    return acc
+  }, {})
+
+  return Object.entries(counts)
+    .map(([category, count]) => ({ category, count, pct: Math.round((count / data.length) * 100) }))
+    .sort((a, b) => b.count - a.count)
+}

@@ -12,12 +12,13 @@ import {
 import {
   Leaf, Users, Recycle, Trophy, Zap,
   Building2, GraduationCap, Plus, ChevronRight,
-  Clock, CheckCircle2,
+  Clock, FileBarChart2,
 } from "lucide-react"
 import Link from "next/link"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { WasteCategory } from "@/types/database"
+import { CreateChallengeButton } from "@/components/institution/CreateChallengeButton"
 
 const CATEGORY_COLORS: Record<WasteCategory, string> = {
   plastic:    "bg-blue-100 text-blue-700",
@@ -85,14 +86,22 @@ export default async function InstitutionDashboardPage() {
           <h1 className="text-2xl font-bold text-[#1A1A2E]">{org.name}</h1>
           <p className="text-sm text-muted-foreground mt-0.5">{org.district}, {org.region}</p>
         </div>
-        {isSchool && (
+        <div className="flex items-center gap-2 shrink-0">
           <Link
-            href="/institution/classrooms"
-            className={cn(buttonVariants({ size: "sm" }), "bg-[#00897B] hover:bg-[#00796B] text-white gap-1.5 shrink-0")}
+            href="/institution/reports"
+            className={cn(buttonVariants({ size: "sm", variant: "outline" }), "gap-1.5")}
           >
-            <Plus className="h-3.5 w-3.5" /> Nueva aula
+            <FileBarChart2 className="h-3.5 w-3.5" /> Reporte
           </Link>
-        )}
+          {isSchool && (
+            <Link
+              href="/institution/classrooms"
+              className={cn(buttonVariants({ size: "sm" }), "bg-[#00897B] hover:bg-[#00796B] text-white gap-1.5")}
+            >
+              <Plus className="h-3.5 w-3.5" /> Nueva aula
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Métricas */}
@@ -212,9 +221,7 @@ export default async function InstitutionDashboardPage() {
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Retos</h2>
-            <button className="text-xs text-[#00897B] font-medium hover:underline">
-              + Crear reto
-            </button>
+            <CreateChallengeButton />
           </div>
 
           {challenges.length === 0 ? (

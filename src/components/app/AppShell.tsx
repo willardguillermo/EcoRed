@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Home, Camera, MessageCircle, Trophy, Leaf, LogOut, Building2, MapPin } from "lucide-react"
+import { Home, Camera, MessageCircle, Trophy, Leaf, LogOut, Building2, MapPin, FileBarChart2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 import type { UserRole } from "@/types/database"
@@ -80,18 +80,27 @@ export function AppShell({ children, profile }: AppShellProps) {
                   Institución
                 </span>
               </div>
-              <Link
-                href="/institution/dashboard"
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
-                  pathname.startsWith("/institution")
-                    ? "bg-[#E3F2FD] text-[#1565C0]"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
-              >
-                <Building2 className="h-4 w-4 shrink-0" />
-                Panel institucional
-              </Link>
+              {[
+                { href: "/institution/dashboard", icon: Building2,     label: "Panel"    },
+                { href: "/institution/reports",   icon: FileBarChart2, label: "Reporte"  },
+              ].map((item) => {
+                const active = pathname === item.href
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                      active
+                        ? "bg-[#E3F2FD] text-[#1565C0]"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4 shrink-0" />
+                    {item.label}
+                  </Link>
+                )
+              })}
             </>
           )}
         </nav>
