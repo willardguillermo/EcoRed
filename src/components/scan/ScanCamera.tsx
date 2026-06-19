@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import {
-  Camera, Upload, RotateCcw, CheckCircle2, XCircle, X,
+  Camera, Upload, RotateCcw, CheckCircle2, XCircle, X, ArrowRight,
   Leaf, Zap, Cpu, Trash2, FlaskConical, FileText, Package, AlertTriangle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -148,29 +148,43 @@ export function ScanCamera() {
         </p>
       </div>
 
-      <button
-        onClick={openCamera}
-        className="flex flex-col items-center gap-3 h-44 w-44 rounded-3xl bg-[#00897B] hover:bg-[#00796B] text-white transition-colors shadow-lg shadow-[#00897B]/20 active:scale-95"
-      >
-        <Camera className="h-14 w-14 mt-8" />
-        <span className="text-sm font-semibold">Abrir cámara</span>
-      </button>
+      {/* Double-Bezel camera button */}
+      <div style={{ padding: 5, borderRadius: 34, background: 'rgba(0,137,123,0.07)', border: '1px solid rgba(0,137,123,0.18)' }}>
+        <button
+          onClick={openCamera}
+          className="active:scale-95"
+          style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            gap: 10, width: 156, height: 156, borderRadius: 29,
+            background: 'linear-gradient(145deg, #00897B 0%, #005F57 100%)',
+            color: '#fff', border: 'none', cursor: 'pointer',
+            boxShadow: '0 8px 24px rgba(0,137,123,0.36), inset 0 1px 0 rgba(255,255,255,0.14)',
+            transition: 'all .28s cubic-bezier(0.16,1,0.3,1)',
+          }}
+        >
+          <Camera size={50} color="rgba(255,255,255,0.95)" />
+          <span style={{ fontSize: 13, fontWeight: 700 }}>Abrir cámara</span>
+        </button>
+      </div>
 
       <div
         onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
         onClick={() => fileRef.current?.click()}
-        className={cn(
-          "w-full max-w-sm border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-colors",
-          dragging
-            ? "border-[#00897B] bg-[#E0F2F1]"
-            : "border-border bg-white hover:border-[#00897B]/40 hover:bg-[#E0F2F1]/30"
-        )}
+        style={{
+          width: '100%', maxWidth: 320, cursor: 'pointer',
+          padding: 4, borderRadius: 22,
+          background: dragging ? 'rgba(0,137,123,0.05)' : 'rgba(0,0,0,0.015)',
+          border: `1.5px dashed ${dragging ? '#00897B' : 'rgba(0,0,0,0.12)'}`,
+          transition: 'all .25s ease',
+        }}
       >
-        <Upload className="h-7 w-7 text-muted-foreground mx-auto mb-2" />
-        <p className="text-sm font-medium text-foreground">Subir desde galería</p>
-        <p className="text-xs text-muted-foreground mt-0.5">PNG, JPG, WEBP · máx. 10 MB</p>
+        <div style={{ borderRadius: 18, padding: '20px 16px', textAlign: 'center', background: dragging ? 'rgba(0,137,123,0.04)' : 'rgba(255,255,255,0.6)' }}>
+          <Upload size={26} color="rgba(26,26,46,0.35)" style={{ margin: '0 auto 8px' }} />
+          <p style={{ fontSize: 14, fontWeight: 600, color: '#1A1A2E' }}>Subir desde galería</p>
+          <p style={{ fontSize: 12, color: 'rgba(26,26,46,0.42)', marginTop: 2 }}>PNG, JPG, WEBP · máx. 10 MB</p>
+        </div>
       </div>
 
       <input ref={fileRef} type="file" accept="image/*"
@@ -255,11 +269,22 @@ export function ScanCamera() {
         >
           <RotateCcw className="h-4 w-4" /> Cambiar foto
         </button>
+        {/* Button-in-Button analyze */}
         <button
           onClick={analyze}
-          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#00897B] hover:bg-[#00796B] text-white transition-colors text-sm font-semibold"
+          style={{
+            flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            padding: '12px 16px 12px 20px', borderRadius: 100,
+            background: 'linear-gradient(135deg, #00897B, #005F57)',
+            color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 14,
+            transition: 'all .28s cubic-bezier(0.16,1,0.3,1)',
+            boxShadow: '0 4px 14px rgba(0,137,123,0.32)',
+          }}
         >
-          <Camera className="h-4 w-4" /> Analizar
+          Analizar
+          <span style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(255,255,255,0.16)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Camera size={12} />
+          </span>
         </button>
       </div>
     </div>
@@ -348,14 +373,23 @@ export function ScanCamera() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[#00897B]/20 bg-[#E0F2F1] px-5 py-4 flex items-center justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground">Puntos ganados</p>
-            <p className="text-2xl font-bold text-[#00897B]">+{result.points_earned} pts</p>
-          </div>
-          <div className="text-right">
-            <p className="text-sm text-muted-foreground">CO₂ evitado</p>
-            <p className="text-xl font-bold text-[#00897B]">{result.co2_saved_kg} kg</p>
+        {/* Double-Bezel impact card */}
+        <div style={{ padding: 4, borderRadius: 22, background: 'rgba(0,137,123,0.06)', border: '1px solid rgba(0,137,123,0.14)' }}>
+          <div style={{
+            borderRadius: 18, padding: '16px 20px',
+            background: 'linear-gradient(135deg, rgba(0,137,123,0.1), rgba(0,191,170,0.06))',
+            border: '1px solid rgba(0,137,123,0.08)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1)',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          }}>
+            <div>
+              <p style={{ fontSize: 12, color: 'rgba(26,26,46,0.5)', marginBottom: 2 }}>Puntos ganados</p>
+              <p style={{ fontSize: 24, fontWeight: 800, color: '#00897B', fontVariantNumeric: 'tabular-nums', letterSpacing: '-.015em' }}>+{result.points_earned} pts</p>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <p style={{ fontSize: 12, color: 'rgba(26,26,46,0.5)', marginBottom: 2 }}>CO₂ evitado</p>
+              <p style={{ fontSize: 20, fontWeight: 800, color: '#00897B', fontVariantNumeric: 'tabular-nums' }}>{result.co2_saved_kg} kg</p>
+            </div>
           </div>
         </div>
 
@@ -373,18 +407,33 @@ export function ScanCamera() {
           </div>
         </div>
 
-        <div className="flex gap-3 pt-1">
+        <div style={{ display: 'flex', gap: 10, paddingTop: 4 }}>
           <button
             onClick={reset}
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-border bg-white hover:bg-muted transition-colors text-sm font-medium"
+            style={{
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              padding: '12px 16px', borderRadius: 100, border: '1px solid rgba(0,0,0,0.1)',
+              background: '#fff', color: '#1A1A2E', fontSize: 14, fontWeight: 500,
+              cursor: 'pointer', transition: 'all .2s ease',
+            }}
           >
-            <Camera className="h-4 w-4" /> Escanear otro
+            <Camera size={14} /> Escanear otro
           </button>
           <button
             onClick={() => router.push("/dashboard")}
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#00897B] hover:bg-[#00796B] text-white transition-colors text-sm font-semibold"
+            style={{
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              padding: '12px 16px 12px 20px', borderRadius: 100,
+              background: 'linear-gradient(135deg, #00897B, #005F57)',
+              color: '#fff', border: 'none', fontSize: 14, fontWeight: 700,
+              cursor: 'pointer', transition: 'all .28s cubic-bezier(0.16,1,0.3,1)',
+              boxShadow: '0 4px 14px rgba(0,137,123,0.28)',
+            }}
           >
             Ver mi impacto
+            <span style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(255,255,255,0.16)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <ArrowRight size={12} />
+            </span>
           </button>
         </div>
       </div>

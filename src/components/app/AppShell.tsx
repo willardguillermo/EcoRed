@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import { Home, Camera, MessageCircle, Trophy, Leaf, LogOut, Building2, MapPin, FileBarChart2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
@@ -31,6 +32,38 @@ export function AppShell({ children, profile }: AppShellProps) {
   const pathname  = usePathname()
   const router    = useRouter()
   const supabase  = createClient()
+
+  const [points, setPoints] = useState(profile.points)
+
+  // Suscripción Realtime: actualiza los puntos en el sidebar sin recargar.
+  // El cleanup se retorna directamente del useEffect (no dentro del .then)
+  // para garantizar que React lo invoque al desmontar.
+  useEffect(() => {
+    let channel: ReturnType<typeof supabase.channel> | null = null
+    let isMounted = true
+
+    supabase.auth.getUser().then(({ data }) => {
+      const userId = data.user?.id
+      if (!userId || !isMounted) return
+
+      channel = supabase
+        .channel("profile-points")
+        .on(
+          "postgres_changes",
+          { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${userId}` },
+          (payload) => {
+            const newPoints = (payload.new as { points: number }).points
+            if (typeof newPoints === "number" && isMounted) setPoints(newPoints)
+          }
+        )
+        .subscribe()
+    })
+
+    return () => {
+      isMounted = false
+      if (channel) supabase.removeChannel(channel)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const isAdmin = INSTITUTION_ROLES.includes(profile.role)
 
@@ -116,7 +149,7 @@ export function AppShell({ children, profile }: AppShellProps) {
                 {profile.full_name ?? "Usuario"}
               </p>
               <p className="text-xs text-muted-foreground font-mono">
-                {profile.points} pts
+                {points} pts
               </p>
             </div>
           </div>

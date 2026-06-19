@@ -2,7 +2,6 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { Leaf, Zap, Weight, Trophy, Camera, Clock, ChevronRight } from "lucide-react"
 import Link from "next/link"
-import { cn } from "@/lib/utils"
 import {
   getProfile,
   getImpactTotals,
@@ -10,7 +9,6 @@ import {
   getActiveChallenge,
 } from "@/features/citizen/citizenService"
 import type { WasteCategory } from "@/types/database"
-import { buttonVariants } from "@/components/ui/button"
 
 function greeting() {
   const h = new Date().getHours()
@@ -31,14 +29,14 @@ const CATEGORY_LABELS: Record<WasteCategory, string> = {
 }
 
 const CATEGORY_COLORS: Record<WasteCategory, string> = {
-  plastic:    "bg-blue-100 text-blue-700",
-  paper:      "bg-yellow-100 text-yellow-700",
-  glass:      "bg-cyan-100 text-cyan-700",
-  metal:      "bg-gray-100 text-gray-700",
-  organic:    "bg-green-100 text-green-700",
-  electronic: "bg-purple-100 text-purple-700",
-  hazardous:  "bg-red-100 text-red-700",
-  other:      "bg-orange-100 text-orange-700",
+  plastic:    "#1565C0",
+  paper:      "#F59E0B",
+  glass:      "#06B6D4",
+  metal:      "#64748B",
+  organic:    "#00897B",
+  electronic: "#7C3AED",
+  hazardous:  "#DC2626",
+  other:      "#EA580C",
 }
 
 function formatDate(iso: string) {
@@ -52,167 +50,279 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect("/auth/login")
 
-  const [profile, impact, scans] = await Promise.all([
-    getProfile(supabase, user.id),
-    getImpactTotals(supabase, user.id),
-    getRecentScans(supabase, user.id, 5),
-  ])
+  // async-parallel: start independent fetches immediately, await profile early
+  // to unblock challenge fetch, then resolve all together (vercel-react-best-practices §1.2)
+  const profileP = getProfile(user.id)
+  const impactP  = getImpactTotals(user.id)
+  const scansP   = getRecentScans(user.id, 5)
 
+  const profile = await profileP
   if (!profile) redirect("/auth/login")
 
-  const challenge = profile.org_id
-    ? await getActiveChallenge(supabase, profile.org_id)
-    : null
+  const challengeP = profile.org_id
+    ? getActiveChallenge(profile.org_id)
+    : Promise.resolve(null)
+
+  const [impact, scans, challenge] = await Promise.all([impactP, scansP, challengeP])
 
   const firstName = profile.full_name?.split(" ")[0] ?? "Usuario"
+  const daysLeft  = challenge
+    ? Math.ceil((new Date(challenge.deadline).getTime() - Date.now()) / 86_400_000)
+    : 0
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-      {/* Saludo */}
-      <div>
-        <p className="text-sm text-muted-foreground">{greeting()},</p>
-        <h1 className="text-2xl font-bold text-[#1A1A2E]">{firstName} 👋</h1>
-      </div>
+    <>
+      <style>{`
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(18px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .fu  { animation: fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) both; }
+        .d1  { animation-delay: 0.04s; }
+        .d2  { animation-delay: 0.11s; }
+        .d3  { animation-delay: 0.18s; }
+        .d4  { animation-delay: 0.25s; }
+        .d5  { animation-delay: 0.32s; }
 
-      {/* Métricas */}
-      <div className="grid grid-cols-3 gap-3">
-        <MetricCard
-          icon={<Zap className="h-5 w-5 text-[#00897B]" />}
-          surface="bg-[#E0F2F1]"
-          value={profile.points.toLocaleString("es-PE")}
-          label="EcoPuntos"
-        />
-        <MetricCard
-          icon={<Leaf className="h-5 w-5 text-[#1565C0]" />}
-          surface="bg-[#E3F2FD]"
-          value={impact.co2_saved_kg.toFixed(1)}
-          label="kg CO₂"
-          sublabel="evitado"
-        />
-        <MetricCard
-          icon={<Weight className="h-5 w-5 text-[#00897B]" />}
-          surface="bg-[#E0F2F1]"
-          value={impact.waste_kg.toFixed(1)}
-          label="kg"
-          sublabel="reciclados"
-        />
-      </div>
+        @keyframes ringPulse {
+          0%, 100% { box-shadow: 0 0 0 0   rgba(0,137,123,0.4); }
+          60%       { box-shadow: 0 0 0 10px rgba(0,137,123,0);   }
+        }
+        .scan-ring { animation: ringPulse 2.6s ease-in-out infinite; border-radius: 16px; }
 
-      {/* Reto semanal */}
-      <section>
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-          Reto activo
-        </h2>
-        {challenge ? (
-          <div className="rounded-2xl bg-[#00897B] p-5 text-white">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex-1">
-                <p className="font-bold text-lg leading-tight mb-1">{challenge.title}</p>
-                <p className="text-white/80 text-sm leading-relaxed">{challenge.description}</p>
-              </div>
-              <div className="shrink-0 text-right">
-                <div className="text-2xl font-bold font-mono">+{challenge.points}</div>
-                <div className="text-white/70 text-xs">puntos</div>
-              </div>
-            </div>
-            <div className="mt-3 flex items-center gap-1.5 text-white/70 text-xs">
-              <Clock className="h-3.5 w-3.5" />
-              Vence {formatDate(challenge.deadline)}
-            </div>
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-dashed border-border bg-white p-5 text-center">
-            <Trophy className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">
-              {profile.org_id
-                ? "No hay retos activos en este momento"
-                : "Únete a una institución para ver retos"}
-            </p>
-          </div>
-        )}
-      </section>
+        .scan-btn:hover { filter: brightness(1.07); transform: translateY(-1px); }
+        .scan-btn { transition: all 0.22s ease; }
 
-      {/* Acción rápida de escanear */}
-      <Link
-        href="/scan"
-        className={cn(
-          buttonVariants({ size: "lg" }),
-          "w-full justify-center bg-[#00897B] hover:bg-[#00796B] text-white h-13 text-base font-semibold gap-2"
-        )}
-      >
-        <Camera className="h-5 w-5" />
-        Escanear residuo
-      </Link>
+        .history-row:hover { background: rgba(0,137,123,0.03) !important; }
+        .history-row { transition: background 0.15s ease; }
+      `}</style>
 
-      {/* Historial reciente */}
-      <section>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-            Historial reciente
-          </h2>
-          {scans.length > 0 && (
-            <Link href="/scan" className="text-xs text-[#00897B] font-medium hover:underline flex items-center gap-0.5">
-              Ver todo <ChevronRight className="h-3.5 w-3.5" />
-            </Link>
-          )}
+      <div style={{ maxWidth: 640, margin: '0 auto', padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+        {/* ── Saludo ── */}
+        <div className="fu d1">
+          <p style={{ fontSize: 13, color: 'rgba(26,26,46,0.38)', fontWeight: 500 }}>{greeting()},</p>
+          <h1 style={{ fontSize: 28, fontWeight: 800, color: '#1A1A2E', letterSpacing: '-0.025em', lineHeight: 1.15, marginTop: 1 }}>
+            {firstName}
+          </h1>
         </div>
 
-        {scans.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border bg-white p-8 text-center">
-            <Camera className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-sm font-medium text-foreground mb-1">Aún no has reciclado</p>
-            <p className="text-xs text-muted-foreground">
-              Escanea tu primer residuo para empezar a acumular puntos
-            </p>
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-border bg-white overflow-hidden divide-y divide-border">
-            {scans.map((scan) => (
-              <div key={scan.id} className="flex items-center gap-3 px-4 py-3.5">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{scan.waste_name}</p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className={cn(
-                      "text-[10px] font-medium px-1.5 py-0.5 rounded-full",
-                      CATEGORY_COLORS[scan.waste_category as WasteCategory]
-                    )}>
-                      {CATEGORY_LABELS[scan.waste_category as WasteCategory]}
-                    </span>
-                    <span className="text-xs text-muted-foreground">{formatDate(scan.created_at)}</span>
+        {/* ── Métricas ── */}
+        <div className="fu d2" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
+          <MetricCard
+            icon={<Zap className="h-4 w-4 text-[#00897B]" />}
+            value={profile.points.toLocaleString("es-PE")}
+            label="EcoPuntos"
+            rgb="0,137,123"
+            accent="#00897B"
+          />
+          <MetricCard
+            icon={<Leaf className="h-4 w-4 text-[#1565C0]" />}
+            value={impact.co2_saved_kg.toFixed(1)}
+            label="kg CO₂"
+            sublabel="evitado"
+            rgb="21,101,192"
+            accent="#1565C0"
+          />
+          <MetricCard
+            icon={<Weight className="h-4 w-4 text-[#00897B]" />}
+            value={impact.waste_kg.toFixed(1)}
+            label="kg"
+            sublabel="reciclados"
+            rgb="0,137,123"
+            accent="#00897B"
+          />
+        </div>
+
+        {/* ── Reto activo ── */}
+        <section className="fu d3">
+          {challenge ? (
+            <div style={{
+              borderRadius: 20,
+              background: 'linear-gradient(135deg, #00897B 0%, #005F57 100%)',
+              padding: '20px',
+              position: 'relative', overflow: 'hidden',
+              boxShadow: '0 6px 20px rgba(0,137,123,0.25)',
+            }}>
+              <div style={{ position: 'absolute', top: -40, right: -40, width: 140, height: 140, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', bottom: -24, left: -24, width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
+
+              <div style={{ position: 'relative' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 10 }}>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.55)', letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: 5 }}>Reto activo</p>
+                    <p style={{ fontSize: 16, fontWeight: 700, color: '#fff', lineHeight: 1.3 }}>{challenge.title}</p>
+                  </div>
+                  <div style={{
+                    padding: '8px 12px', borderRadius: 100, textAlign: 'center', flexShrink: 0,
+                    background: 'rgba(255,255,255,0.14)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                  }}>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>+{challenge.points}</div>
+                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' }}>pts</div>
                   </div>
                 </div>
-                <div className="shrink-0 text-right">
-                  <span className="text-sm font-bold font-mono text-[#00897B]">
-                    +{scan.points_earned}
+
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', lineHeight: 1.6, marginBottom: 14 }}>{challenge.description}</p>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Clock className="h-3.5 w-3.5" style={{ color: 'rgba(255,255,255,0.45)', flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>
+                    {daysLeft <= 0 ? "Vence hoy" : `${daysLeft} día${daysLeft !== 1 ? "s" : ""} restantes`}
                   </span>
-                  <p className="text-[10px] text-muted-foreground">pts</p>
+                  {daysLeft > 0 && daysLeft <= 2 && (
+                    <span style={{
+                      marginLeft: 4, padding: '2px 8px', borderRadius: 100, fontSize: 9,
+                      fontWeight: 800, letterSpacing: '.07em', textTransform: 'uppercase',
+                      background: 'rgba(239,83,80,0.22)', border: '1px solid rgba(239,83,80,0.35)',
+                      color: '#FF8A80',
+                    }}>
+                      ¡Urgente!
+                    </span>
+                  )}
                 </div>
               </div>
-            ))}
+            </div>
+          ) : (
+            <div style={{
+              borderRadius: 20, border: '1px dashed rgba(0,0,0,0.11)',
+              background: '#FAFAFA', padding: '28px', textAlign: 'center',
+            }}>
+              <Trophy className="h-8 w-8 mx-auto mb-2" style={{ color: 'rgba(0,0,0,0.13)' }} />
+              <p style={{ fontSize: 14, color: 'rgba(26,26,46,0.4)' }}>
+                {profile.org_id
+                  ? "No hay retos activos en este momento"
+                  : "Únete a una institución para ver retos"}
+              </p>
+            </div>
+          )}
+        </section>
+
+        {/* ── Escanear ── */}
+        <div className="fu d4">
+          <Link
+            href="/scan"
+            className="scan-btn scan-ring"
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+              width: '100%', padding: '15px',
+              borderRadius: 16,
+              background: 'linear-gradient(135deg, #00897B 0%, #005F57 100%)',
+              color: '#fff', fontWeight: 700, fontSize: 15,
+              textDecoration: 'none',
+              border: '1px solid rgba(0,229,180,0.16)',
+              boxShadow: '0 4px 16px rgba(0,137,123,0.28)',
+            }}
+          >
+            <Camera className="h-5 w-5" />
+            Escanear residuo
+          </Link>
+        </div>
+
+        {/* ── Historial ── */}
+        <section className="fu d5">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <h2 style={{ fontSize: 10.5, fontWeight: 700, color: 'rgba(26,26,46,0.35)', letterSpacing: '.09em', textTransform: 'uppercase' }}>
+              Historial reciente
+            </h2>
+            {scans.length > 0 && (
+              <Link href="/scan" style={{ fontSize: 12, color: '#00897B', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 2, textDecoration: 'none' }}>
+                Ver todo <ChevronRight className="h-3.5 w-3.5" />
+              </Link>
+            )}
           </div>
-        )}
-      </section>
-    </div>
+
+          {scans.length === 0 ? (
+            <div style={{
+              borderRadius: 20, border: '1px dashed rgba(0,0,0,0.11)',
+              background: '#FAFAFA', padding: '36px', textAlign: 'center',
+            }}>
+              <Camera className="h-10 w-10 mx-auto mb-3" style={{ color: 'rgba(0,0,0,0.11)' }} />
+              <p style={{ fontSize: 14, fontWeight: 600, color: '#1A1A2E', marginBottom: 4 }}>Aún no has reciclado</p>
+              <p style={{ fontSize: 13, color: 'rgba(26,26,46,0.4)', lineHeight: 1.55 }}>
+                Escanea tu primer residuo para empezar a acumular puntos
+              </p>
+            </div>
+          ) : (
+            <div style={{ borderRadius: 20, border: '1px solid rgba(0,0,0,0.07)', background: '#fff', overflow: 'hidden' }}>
+              {scans.map((scan, i) => {
+                const catColor = CATEGORY_COLORS[scan.waste_category as WasteCategory] ?? '#00897B'
+                return (
+                  <div
+                    key={scan.id}
+                    className="history-row"
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 12,
+                      padding: '13px 16px',
+                      borderBottom: i < scans.length - 1 ? '1px solid rgba(0,0,0,0.05)' : 'none',
+                      borderLeft: `3px solid ${catColor}`,
+                    }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontSize: 14, fontWeight: 500, color: '#1A1A2E', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {scan.waste_name}
+                      </p>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3 }}>
+                        <span style={{
+                          fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 100,
+                          background: `${catColor}16`, color: catColor,
+                          border: `1px solid ${catColor}2A`,
+                        }}>
+                          {CATEGORY_LABELS[scan.waste_category as WasteCategory]}
+                        </span>
+                        <span style={{ fontSize: 11, color: 'rgba(26,26,46,0.32)' }}>{formatDate(scan.created_at)}</span>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <span style={{ fontSize: 15, fontWeight: 800, color: '#00897B', fontVariantNumeric: 'tabular-nums', display: 'block' }}>
+                        +{scan.points_earned}
+                      </span>
+                      <span style={{ fontSize: 10, color: 'rgba(26,26,46,0.3)' }}>pts</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </section>
+
+      </div>
+    </>
   )
 }
 
-function MetricCard({
-  icon, surface, value, label, sublabel,
-}: {
+function MetricCard({ icon, value, label, sublabel, rgb, accent }: {
   icon:      React.ReactNode
-  surface:   string
   value:     string
   label:     string
   sublabel?: string
+  rgb:       string
+  accent:    string
 }) {
   return (
-    <div className="rounded-2xl bg-white border border-border p-4 flex flex-col gap-2">
-      <div className={cn("h-9 w-9 rounded-xl flex items-center justify-center", surface)}>
+    <div style={{
+      borderRadius: 18,
+      background: `linear-gradient(145deg, rgba(${rgb},0.08) 0%, rgba(${rgb},0.02) 100%)`,
+      border: `1px solid rgba(${rgb},0.14)`,
+      padding: '14px 12px',
+      display: 'flex', flexDirection: 'column', gap: 10,
+      position: 'relative', overflow: 'hidden',
+    }}>
+      <div style={{
+        width: 34, height: 34, borderRadius: 9, flexShrink: 0,
+        background: `rgba(${rgb},0.1)`,
+        border: `1px solid rgba(${rgb},0.15)`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
         {icon}
       </div>
       <div>
-        <p className="text-xl font-bold font-mono text-[#1A1A2E] leading-none">{value}</p>
-        <p className="text-xs text-muted-foreground mt-0.5">{label}{sublabel && <span className="block">{sublabel}</span>}</p>
+        <p style={{ fontSize: 22, fontWeight: 800, color: accent, lineHeight: 1, fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.015em' }}>
+          {value}
+        </p>
+        <p style={{ fontSize: 10.5, color: 'rgba(26,26,46,0.38)', marginTop: 3, lineHeight: 1.4 }}>
+          {label}{sublabel && <><br />{sublabel}</>}
+        </p>
       </div>
     </div>
   )

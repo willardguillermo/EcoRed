@@ -9,7 +9,7 @@ export default async function ClassroomsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect("/auth/login")
 
-  const profile = await getProfile(supabase, user.id)
+  const profile = await getProfile(user.id)
   if (!profile?.org_id) redirect("/onboarding")
 
   const ALLOWED = ["school_admin", "platform_admin"]

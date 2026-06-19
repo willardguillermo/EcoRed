@@ -9,7 +9,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   if (!user) redirect("/auth/login")
 
-  const profile = await getProfile(supabase, user.id)
+  const profile = await getProfile(user.id)
   if (!profile) redirect("/auth/login")
 
   return (

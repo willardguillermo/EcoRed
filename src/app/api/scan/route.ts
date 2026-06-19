@@ -18,7 +18,8 @@ const CATEGORY_META: Record<WasteCategory, { points: number; co2_kg: number; was
 }
 
 const SYSTEM_PROMPT = `Eres un experto en clasificación de residuos y reciclaje en Perú.
-Analiza la imagen y responde ÚNICAMENTE con un JSON válido con este formato exacto (sin texto adicional):
+Analiza la imagen. Si la imagen NO contiene un residuo o basura (por ejemplo: personas, animales, paisajes, comida sin envase, objetos en uso), clasifícala como "other" con recyclable: false y explica en instructions que no es un residuo reconocible.
+Si SÍ contiene un residuo, clasifícalo y responde ÚNICAMENTE con un JSON válido con este formato exacto (sin texto adicional):
 {
   "waste_category": "plastic|paper|glass|metal|organic|electronic|hazardous|other",
   "waste_name": "nombre corto del residuo (ej: Botella PET)",
@@ -79,14 +80,28 @@ export async function POST(request: Request) {
     return Response.json({ error: "Error al analizar la imagen. Intenta con otra foto." }, { status: 500 })
   }
 
+  // Validar campos NOT NULL antes de insertar — el modelo puede devolver JSON incompleto
+  const required = ["waste_name", "material", "instructions"] as const
+  for (const field of required) {
+    if (!parsed[field]) {
+      return Response.json({ error: "La IA no pudo clasificar el residuo. Intenta con otra foto." }, { status: 422 })
+    }
+  }
+  if (typeof parsed.recyclable !== "boolean") parsed.recyclable = Boolean(parsed.recyclable)
+
   const category = (CATEGORY_META[parsed.waste_category] ? parsed.waste_category : "other") as WasteCategory
   const meta     = CATEGORY_META[category]
 
+  // Solo se otorgan puntos e impacto si el ítem es reciclable
+  const pointsEarned = parsed.recyclable ? meta.points  : 0
+  const co2Saved     = parsed.recyclable ? meta.co2_kg  : 0
+  const wasteKg      = parsed.recyclable ? meta.waste_kg : 0
+
   const { data: profile } = await supabase
     .from("profiles")
-    .select("org_id, classroom_id, points")
+    .select("org_id, classroom_id")
     .eq("id", user.id)
-    .single() as { data: { org_id: string | null; classroom_id: string | null; points: number } | null }
+    .single() as { data: { org_id: string | null; classroom_id: string | null } | null }
 
   const { data: scan, error: scanError } = await adminSupabase
     .from("scans")
@@ -100,7 +115,7 @@ export async function POST(request: Request) {
       recyclable:     parsed.recyclable,
       instructions:   parsed.instructions,
       confidence:     Math.min(parsed.confidence, 100) / 100,
-      points_earned:  meta.points,
+      points_earned:  pointsEarned,
       image_url:      null,
     })
     .select("id")
@@ -112,14 +127,14 @@ export async function POST(request: Request) {
     user_id:      user.id,
     org_id:       profile?.org_id ?? null,
     scan_id:      scan.id,
-    co2_saved_kg: meta.co2_kg,
-    waste_kg:     meta.waste_kg,
+    co2_saved_kg: co2Saved,
+    waste_kg:     wasteKg,
   })
 
-  await adminSupabase
-    .from("profiles")
-    .update({ points: (profile?.points ?? 0) + meta.points })
-    .eq("id", user.id)
+  // Incremento atómico con RPC para evitar race condition en escaneos concurrentes
+  if (pointsEarned > 0) {
+    await adminSupabase.rpc("increment_points", { uid: user.id, delta: pointsEarned })
+  }
 
   return Response.json({
     waste_category: category,
@@ -129,7 +144,7 @@ export async function POST(request: Request) {
     confidence:     parsed.confidence,
     instructions:   parsed.instructions,
     eco_tip:        parsed.eco_tip,
-    points_earned:  meta.points,
-    co2_saved_kg:   meta.co2_kg,
+    points_earned:  pointsEarned,
+    co2_saved_kg:   co2Saved,
   })
 }

@@ -11,7 +11,7 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return new Response("No autenticado", { status: 401 })
 
-  const profile = await getProfile(supabase, user.id)
+  const profile = await getProfile(user.id)
   if (!profile?.org_id)                     return Response.json({ error: "Sin organización" },   { status: 403 })
   if (!ALLOWED_ROLES.includes(profile.role)) return Response.json({ error: "Sin permisos" },       { status: 403 })
 

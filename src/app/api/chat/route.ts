@@ -201,9 +201,9 @@ export async function POST(request: Request) {
     }
 
     const [profile, impact, scans] = await Promise.all([
-      getProfile(supabase, user.id),
-      getImpactTotals(supabase, user.id),
-      getRecentScans(supabase, user.id, 10),
+      getProfile(user.id),
+      getImpactTotals(user.id),
+      getRecentScans(user.id, 10),
     ])
 
     const userName = profile?.full_name?.split(" ")[0] ?? "Usuario"
