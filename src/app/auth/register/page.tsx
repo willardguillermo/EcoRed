@@ -23,6 +23,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
+  const [confirmEmail, setConfirmEmail] = useState("")
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault()
@@ -36,7 +37,7 @@ export default function RegisterPage() {
 
     const role = accountType === "citizen" ? "citizen" : "school_admin"
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -56,14 +57,44 @@ export default function RegisterPage() {
       return
     }
 
-    toast.success("¡Cuenta creada! Revisa tu correo para confirmar.")
-
-    if (accountType === "institution") {
-      router.push("/onboarding")
-    } else {
-      router.push("/dashboard")
+    // Si no hay sesión activa, Supabase requiere confirmación de email
+    if (!data.session) {
+      setConfirmEmail(email)
+      setLoading(false)
+      return
     }
+
+    // Sesión activa (confirmación desactivada) → redirigir directo
+    toast.success("¡Cuenta creada!")
+    router.push(accountType === "institution" ? "/onboarding" : "/dashboard")
     router.refresh()
+  }
+
+  if (confirmEmail) {
+    return (
+      <Card className="w-full max-w-sm shadow-sm border-border">
+        <CardContent className="pt-8 pb-8 flex flex-col items-center text-center gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#E0F2F1]">
+            <svg className="h-7 w-7 text-[#00897B]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-[#1A1A2E] mb-1">Revisa tu correo</h2>
+            <p className="text-sm text-muted-foreground">
+              Enviamos un enlace de confirmación a
+            </p>
+            <p className="text-sm font-medium text-[#00897B] mt-0.5">{confirmEmail}</p>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Haz clic en el enlace del correo para activar tu cuenta y poder iniciar sesión.
+          </p>
+          <Link href="/auth/login" className="text-sm font-medium text-[#00897B] hover:underline">
+            Ir al inicio de sesión
+          </Link>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
