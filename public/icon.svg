@@ -1,7 +1,86 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="110" fill="#00897B"/>
-  <!-- Leaf shape: top tip → right curve → bottom tip → left curve -->
-  <path d="M256,88 C395,88 440,235 256,440 C72,235 117,88 256,88 Z" fill="white"/>
-  <!-- Stem -->
-  <rect x="244" y="438" width="24" height="52" rx="12" fill="white"/>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#64C84B"/>
+      <stop offset="100%" stop-color="#145019"/>
+    </linearGradient>
+    <!-- Copa del árbol como clipPath -->
+    <clipPath id="copa">
+      <circle cx="256" cy="100" r="88"/>
+      <circle cx="178" cy="128" r="80"/>
+      <circle cx="334" cy="128" r="80"/>
+      <circle cx="112" cy="200" r="75"/>
+      <circle cx="400" cy="200" r="75"/>
+      <circle cx="162" cy="238" r="64"/>
+      <circle cx="350" cy="238" r="64"/>
+      <circle cx="256" cy="258" r="72"/>
+    </clipPath>
+  </defs>
+
+  <!-- Fondo blanco con esquinas redondeadas -->
+  <rect width="512" height="512" rx="110" fill="white"/>
+
+  <!-- Copa (gradiente) -->
+  <circle cx="256" cy="100" r="88" fill="url(#g)"/>
+  <circle cx="178" cy="128" r="80" fill="url(#g)"/>
+  <circle cx="334" cy="128" r="80" fill="url(#g)"/>
+  <circle cx="112" cy="200" r="75" fill="url(#g)"/>
+  <circle cx="400" cy="200" r="75" fill="url(#g)"/>
+  <circle cx="162" cy="238" r="64" fill="url(#g)"/>
+  <circle cx="350" cy="238" r="64" fill="url(#g)"/>
+  <circle cx="256" cy="258" r="72" fill="url(#g)"/>
+
+  <!-- Red tecnológica (aristas) — clip a la copa -->
+  <g clip-path="url(#copa)" stroke="#A8E08A" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.85">
+    <line x1="256" y1="62"  x2="186" y2="98"/>
+    <line x1="256" y1="62"  x2="326" y2="98"/>
+    <line x1="256" y1="62"  x2="256" y2="135"/>
+    <line x1="186" y1="98"  x2="120" y2="178"/>
+    <line x1="186" y1="98"  x2="204" y2="148"/>
+    <line x1="186" y1="98"  x2="256" y2="135"/>
+    <line x1="326" y1="98"  x2="392" y2="178"/>
+    <line x1="326" y1="98"  x2="308" y2="148"/>
+    <line x1="326" y1="98"  x2="256" y2="135"/>
+    <line x1="120" y1="178" x2="204" y2="148"/>
+    <line x1="120" y1="178" x2="168" y2="222"/>
+    <line x1="392" y1="178" x2="308" y2="148"/>
+    <line x1="392" y1="178" x2="344" y2="222"/>
+    <line x1="204" y1="148" x2="308" y2="148"/>
+    <line x1="204" y1="148" x2="256" y2="135"/>
+    <line x1="204" y1="148" x2="218" y2="238"/>
+    <line x1="204" y1="148" x2="256" y2="195"/>
+    <line x1="308" y1="148" x2="256" y2="135"/>
+    <line x1="308" y1="148" x2="294" y2="238"/>
+    <line x1="308" y1="148" x2="256" y2="195"/>
+    <line x1="256" y1="135" x2="256" y2="195"/>
+    <line x1="168" y1="222" x2="218" y2="238"/>
+    <line x1="344" y1="222" x2="294" y2="238"/>
+    <line x1="218" y1="238" x2="256" y2="275"/>
+    <line x1="218" y1="238" x2="256" y2="195"/>
+    <line x1="294" y1="238" x2="256" y2="275"/>
+    <line x1="294" y1="238" x2="256" y2="195"/>
+  </g>
+
+  <!-- Nodos de la red -->
+  <g clip-path="url(#copa)" fill="#C8F0A8" opacity="0.9">
+    <circle cx="256" cy="62"  r="10"/>
+    <circle cx="186" cy="98"  r="10"/>
+    <circle cx="326" cy="98"  r="10"/>
+    <circle cx="120" cy="178" r="10"/>
+    <circle cx="392" cy="178" r="10"/>
+    <circle cx="204" cy="148" r="10"/>
+    <circle cx="308" cy="148" r="10"/>
+    <circle cx="256" cy="135" r="10"/>
+    <circle cx="168" cy="222" r="10"/>
+    <circle cx="344" cy="222" r="10"/>
+    <circle cx="218" cy="238" r="10"/>
+    <circle cx="294" cy="238" r="10"/>
+    <circle cx="256" cy="275" r="10"/>
+    <circle cx="256" cy="195" r="10"/>
+  </g>
+
+  <!-- Tronco -->
+  <rect x="238" y="315" width="36" height="140" rx="10" fill="url(#g)"/>
+  <!-- Base/suelo -->
+  <rect x="165" y="455" width="182" height="19"  rx="9"  fill="#1B5E20"/>
 </svg>
