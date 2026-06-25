@@ -1,639 +1,780 @@
 import Link from "next/link"
-import { Leaf, Building2, Users, BarChart3, Camera, ArrowRight, Globe, ChevronRight, Recycle, MapPin, MessageCircle } from "lucide-react"
+import Script from "next/script"
+import { Leaf } from "lucide-react"
 
+// ── Pixel-art leaf — deterministic noise, SSR-safe ───────────────────────────
+function pixelNoise(x: number, y: number): number {
+  const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453
+  return n - Math.floor(n)
+}
+
+function PixelLeaf({ scale = 1 }: { scale?: number }) {
+  const COLS = 34, ROWS = 22, CELL = 10 * scale, GAP = 2 * scale
+
+  function inLeaf(col: number, row: number): boolean {
+    const cx = (COLS - 1) / 2
+    const cy = (ROWS - 1) / 2 * 0.70
+    const x = (col - cx) / (COLS * 0.44)
+    const y = (row - cy) / (ROWS * 0.44)
+    const xr = x * 0.978 - y * 0.208
+    const yr = x * 0.208 + y * 0.978
+    return (xr * xr) / (0.88 * 0.88) + (yr * yr) / (0.60 * 0.60) < 1
+  }
+
+  function inStem(col: number, row: number): boolean {
+    const sc = Math.round((COLS - 1) / 2)
+    return (col === sc - 1 || col === sc || col === sc + 1)
+      && row >= ROWS - 6 && row < ROWS
+  }
+
+  type DotCell = { col: number; row: number; size: number; opacity: number; n: number }
+  const cells: DotCell[] = []
+
+  for (let row = 0; row < ROWS; row++) {
+    for (let col = 0; col < COLS; col++) {
+      if (!inLeaf(col, row) && !inStem(col, row)) continue
+      const n = pixelNoise(col, row)
+      cells.push({ col, row, size: CELL * (0.28 + n * 0.72), opacity: 0.12 + n * 0.88, n })
+    }
+  }
+
+  const W = COLS * (CELL + GAP)
+  const H = ROWS * (CELL + GAP)
+
+  return (
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}
+      style={{ maxWidth: "100%", height: "auto", display: "block" }}>
+      {cells.map(({ col, row, size, opacity, n }) => {
+        const cx = col * (CELL + GAP) + CELL / 2
+        const cy = row * (CELL + GAP) + CELL / 2
+        return n > 0.55 ? (
+          <circle key={`${col}-${row}`} cx={cx} cy={cy} r={size / 2}
+            fill={`rgba(0,137,123,${opacity.toFixed(2)})`} />
+        ) : (
+          <rect key={`${col}-${row}`} x={cx - size / 2} y={cy - size / 2}
+            width={size} height={size} rx={size * 0.18}
+            fill={`rgba(0,137,123,${opacity.toFixed(2)})`} />
+        )
+      })}
+    </svg>
+  )
+}
+
+// ── Data ─────────────────────────────────────────────────────────────────────
+const MARQUEE = [
+  "IE Gran Unidad Escolar", "Municipalidad de Miraflores",
+  "IE Colegio Monterrico",  "Municipalidad de San Isidro",
+  "IE CBTIS",               "Municipalidad de Barranco",
+  "ONG ReciclaPerú",        "IE Colegio Los Álamos",
+]
+
+const FEATURES = [
+  { title: "Escáner IA",          icon: "📸", bg: "linear-gradient(145deg,#CFFAF4,#99F0E8)", shadow: "0,200,180",
+    desc: "Fotografía cualquier residuo y la IA lo clasifica al instante: material, categoría e instrucciones de reciclaje adaptadas al contexto peruano." },
+  { title: "Mapa de Acopio",      icon: "🗺️", bg: "linear-gradient(145deg,#FFE0EE,#FFADD1)", shadow: "255,100,180",
+    desc: "Encuentra puntos de reciclaje activos cerca de ti en tiempo real. Filtra por tipo de material, institución o distrito." },
+  { title: "EcoAsistente IA",     icon: "💬", bg: "linear-gradient(145deg,#D8FDED,#A7F3C8)", shadow: "60,220,140",
+    desc: "Chatbot especializado en reciclaje en Perú. Resuelve dudas, sugiere hábitos ecológicos y te conecta con tu impacto acumulado." },
+  { title: "Panel Institucional", icon: "📊", bg: "linear-gradient(145deg,#FEF8C0,#FDE58A)", shadow: "240,190,50",
+    desc: "Gestiona aulas, crea desafíos de reciclaje y mide el impacto de tu colegio o municipalidad con reportes en tiempo real." },
+]
+
+const TIERS = [
+  {
+    label: "Tier 1", title: "Ciudadano",
+    desc: "Para personas que quieren reciclar mejor, acumular puntos y medir su impacto ambiental personal.",
+    cta: "Crear cuenta gratis", href: "/auth/register",
+    feats: ["Escaneo ilimitado de residuos con IA", "Sistema de puntos por reciclaje", "Mapa de puntos de acopio", "EcoAsistente 24/7", "Historial de impacto personal"],
+  },
+  {
+    label: "Tier 2", title: "Institución Educativa",
+    desc: "Convierte tu colegio en un hub de reciclaje con aulas, competencias y reportes de impacto grupal.",
+    cta: "Registrar institución", href: "/auth/register",
+    feats: ["Todo del plan Ciudadano", "Panel de gestión de aulas y alumnos", "Desafíos y competencias entre clases", "Leaderboard institucional en tiempo real", "Reportes exportables por aula y grado"],
+  },
+  {
+    label: "Tier 3", title: "Municipio",
+    desc: "Dashboard completo para gestionar puntos de acopio y visualizar el impacto ambiental del distrito.",
+    cta: "Contactar equipo", href: "/auth/register",
+    feats: ["Todo del plan Institución", "Gestión de puntos de acopio distritales", "Dashboard de CO₂ y residuos por zona", "Reportes para políticas públicas", "Soporte prioritario y onboarding dedicado"],
+  },
+]
+
+const FAQS = [
+  { q: "¿Mis fotos de escaneo se almacenan?",
+    a: "No. Las imágenes se envían a la IA para clasificación y se descartan de inmediato. Solo guardamos el resultado: categoría, material y puntos asignados." },
+  { q: "¿Cómo funciona el sistema de puntos?",
+    a: "Cada residuo correctamente clasificado otorga puntos según el material — plástico: 15 pts, metal: 25 pts, electrónico: 30 pts. Los puntos se acumulan y aparecen en el leaderboard de tu comunidad." },
+  { q: "¿Puede mi colegio unirse gratuitamente?",
+    a: "Sí. Al registrarse como institución, el responsable completa el perfil de la organización y puede crear aulas, gestionar estudiantes y lanzar desafíos de reciclaje sin costo adicional." },
+  { q: "¿Qué residuos puede identificar la IA?",
+    a: "Plástico, papel, vidrio, metal, orgánico, electrónico y residuos peligrosos. La IA indica si el ítem es reciclable, cómo prepararlo y dónde llevarlo en tu distrito." },
+  { q: "¿EcoRed funciona sin conexión?",
+    a: "El escáner y el asistente requieren conexión. El mapa guarda tus puntos favoritos offline y el historial personal está disponible en caché sin internet." },
+]
+
+const STATS = [
+  { num: "12,400+", lbl: "Kg de residuos\nclasificados" },
+  { num: "8,200+",  lbl: "CO₂ equivalente\nevitado (kg)" },
+  { num: "47",      lbl: "Instituciones\nactivas" },
+  { num: "3,100+",  lbl: "Ciudadanos\nregistrados" },
+]
+
+const CTA_ITEMS = [
+  "Sin costos de entrada para ciudadanos e instituciones",
+  "Onboarding completo en menos de 5 minutos",
+  "IA entrenada para el contexto de reciclaje peruano",
+  "Reportes de impacto ambiental en tiempo real",
+]
+
+// ── Page ─────────────────────────────────────────────────────────────────────
 export default function LandingPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
 
-        *, *::before, *::after { box-sizing: border-box; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'DM Sans', system-ui, sans-serif; background: #FAFAF8; color: #0A0A0A; -webkit-font-smoothing: antialiased; }
 
-        .eco-root {
-          font-family: 'DM Sans', system-ui, sans-serif;
-          background: #070D0A;
-          color: #E6F4F1;
-          min-height: 100vh;
-          overflow-x: hidden;
+        /* NAV */
+        .sg-nav {
+          position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+          padding: 20px 48px;
+          display: flex; align-items: center; justify-content: space-between;
+          background: transparent; backdrop-filter: blur(0px);
+          border-bottom: 1px solid transparent;
+          transition: background .45s cubic-bezier(.4,0,.2,1),
+                      backdrop-filter .45s cubic-bezier(.4,0,.2,1),
+                      border-color .45s cubic-bezier(.4,0,.2,1);
+        }
+        .sg-nav.scrolled {
+          background: rgba(250,250,248,.96); backdrop-filter: blur(20px);
+          border-bottom-color: rgba(0,0,0,.07);
+        }
+        .sg-nav-logo {
+          display: flex; align-items: center; gap: 8px;
+          font-family: 'DM Serif Display', serif; font-size: 19px;
+          color: #0A0A0A; text-decoration: none; letter-spacing: -0.02em;
+        }
+        .sg-nav-links { display: flex; gap: 2px; list-style: none; align-items: center; }
+        .sg-nav-links a {
+          font-size: 13px; font-weight: 400; color: #555;
+          text-decoration: none; padding: 6px 11px; border-radius: 6px;
+          transition: color .18s, background .18s;
+        }
+        .sg-nav-links a:hover { color: #0A0A0A; background: rgba(0,0,0,.04); }
+        .sg-nav-cta { background: #0A0A0A !important; color: #fff !important; border-radius: 100px !important; }
+        .sg-nav-cta:hover { background: #00897B !important; }
+
+        /* HERO */
+        .sg-hero {
+          min-height: 100dvh;
+          display: flex; flex-direction: column; align-items: center; justify-content: center;
+          padding: 120px 48px 80px; text-align: center;
+        }
+        .sg-eyebrow {
+          font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+          color: #00897B; margin-bottom: 22px;
+        }
+        .sg-h1 {
+          font-family: 'DM Serif Display', serif;
+          font-size: clamp(44px, 6.5vw, 90px);
+          font-weight: 400; line-height: 1.0; letter-spacing: -.038em;
+          color: #0A0A0A; max-width: 820px; margin-bottom: 24px;
+        }
+        .sg-h1 em { font-style: italic; color: #00897B; }
+        .sg-hero-sub {
+          font-size: 16px; color: #6B6B6B; max-width: 400px;
+          line-height: 1.65; margin-bottom: 36px; font-weight: 400;
+        }
+        .sg-btns { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; }
+        .sg-btn-out {
+          font-size: 13px; font-weight: 500; color: #3D3D3D; text-decoration: none;
+          padding: 10px 22px; border: 1px solid rgba(0,0,0,.16); border-radius: 100px;
+          transition: border-color .2s, color .2s;
+        }
+        .sg-btn-out:hover { border-color: #0A0A0A; color: #0A0A0A; }
+        .sg-btn-blk {
+          font-size: 13px; font-weight: 500; color: #fff; text-decoration: none;
+          padding: 10px 22px; background: #0A0A0A; border-radius: 100px;
+          transition: background .2s;
+        }
+        .sg-btn-blk:hover { background: #00897B; }
+        .sg-btn-grn {
+          font-size: 14px; font-weight: 500; color: #fff; text-decoration: none;
+          padding: 13px 32px; background: #00897B; border-radius: 100px;
+          display: inline-block; transition: background .2s;
+        }
+        .sg-btn-grn:hover { background: #006B61; }
+
+        /* Hero art */
+        .sg-art-wrap { margin-top: 56px; position: relative; width: min(540px, 90vw); }
+        .sg-art-frame {
+          border: 1px solid rgba(0,0,0,.08); border-radius: 8px;
+          background: #EEF9F5; overflow: hidden;
+          display: flex; align-items: center; justify-content: center;
+          padding: 28px 20px 28px;
+        }
+        .sg-corner {
+          position: absolute; width: 18px; height: 18px;
+          border-color: rgba(0,137,123,.5); border-style: solid; z-index: 2;
+        }
+        .sg-tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+        .sg-tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+        .sg-bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+        .sg-br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+        .sg-art-caption {
+          margin-top: 14px; text-align: center;
+          font-size: 11px; color: #B0B0B0; letter-spacing: .04em;
         }
 
-        .display-font { font-family: 'Syne', system-ui, sans-serif; }
-
-        /* ── Container ── */
-        .wrap { max-width: 1200px; margin: 0 auto; width: 100%; }
-
-        /* ── Section padding ── */
-        .sec      { padding: 120px 24px; }
-        .sec-md   { padding: 100px 24px; }
-        .sec-end  { padding: 0 24px 120px; }
-
-        /* ── Hero content ── */
-        .hero-content { padding: 100px 24px 80px; }
-
-        /* ── Gradient mesh background ── */
-        .hero-bg { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
-        .blob {
-          position: absolute; border-radius: 50%;
-          filter: blur(90px); opacity: 0.26;
-          animation: blobDrift 10s ease-in-out infinite;
+        /* MARQUEE */
+        .sg-marquee-wrap {
+          border-top: 1px solid rgba(0,0,0,.07);
+          border-bottom: 1px solid rgba(0,0,0,.07);
+          overflow: hidden;
         }
-        .blob-1 { width: 700px; height: 700px; background: radial-gradient(#00897B, transparent 70%); top: -220px; left: -180px; animation-delay: 0s; }
-        .blob-2 { width: 550px; height: 550px; background: radial-gradient(#1565C0, transparent 70%); top: 80px; right: -160px; animation-delay: -4s; }
-        .blob-3 { width: 380px; height: 380px; background: radial-gradient(#00BFAA, transparent 70%); bottom: -80px; left: 45%; opacity: 0.12; animation-delay: -7s; }
-
-        @keyframes blobDrift {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33%       { transform: translate(24px, -28px) scale(1.06); }
-          66%       { transform: translate(-18px, 18px) scale(0.94); }
+        .sg-marquee-label {
+          text-align: center; font-size: 11px; font-weight: 500;
+          letter-spacing: .08em; color: #B0B0B0; text-transform: uppercase;
+          padding: 14px 0; border-bottom: 1px solid rgba(0,0,0,.05);
         }
-
-        /* ── Grid overlay ── */
-        .grid-overlay {
-          position: absolute; inset: 0; pointer-events: none;
-          background-image:
-            linear-gradient(rgba(0,137,123,0.04) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0,137,123,0.04) 1px, transparent 1px);
-          background-size: 64px 64px;
+        .sg-marquee-row { padding: 14px 0; }
+        .sg-marquee-track {
+          display: flex; width: max-content;
+          animation: sgMarq 26s linear infinite;
+        }
+        @keyframes sgMarq {
+          from { transform: translateX(0); }
+          to   { transform: translateX(-50%); }
+        }
+        .sg-marquee-item {
+          display: inline-flex; align-items: center; gap: 8px;
+          font-size: 13px; font-weight: 500; color: #B0B0B0;
+          white-space: nowrap; padding: 0 28px;
+        }
+        .sg-marquee-item::before {
+          content: ''; width: 5px; height: 5px; border-radius: 50%;
+          background: #00897B; opacity: .55; flex-shrink: 0;
         }
 
-        /* ── Particles ── */
-        .particle {
-          position: absolute; width: 3px; height: 3px;
-          background: #00BFAA; border-radius: 50%;
-          animation: rise linear infinite; opacity: 0;
+        /* DARK SECTION */
+        .sg-dark {
+          background: #0A0A0A; color: #FAFAF8;
+          min-height: 68vh;
+          display: flex; flex-direction: column;
+          align-items: center; justify-content: center;
+          text-align: center; padding: 80px 48px;
+          position: relative; overflow: hidden;
         }
-        @keyframes rise {
-          0%   { transform: translateY(0) translateX(0);    opacity: 0; }
-          8%   { opacity: 0.55; }
-          92%  { opacity: 0.15; }
-          100% { transform: translateY(-580px) translateX(var(--x,20px)); opacity: 0; }
+        .sg-dark-glow {
+          position: absolute; bottom: -80px; left: 50%;
+          transform: translateX(-50%); width: 800px; height: 500px;
+          background: radial-gradient(ellipse at 50% 100%, rgba(0,137,123,.28), transparent 72%);
+          pointer-events: none;
+        }
+        .sg-dark h2 {
+          font-family: 'DM Serif Display', serif;
+          font-size: clamp(32px, 5vw, 62px);
+          font-weight: 400; letter-spacing: -.03em; line-height: 1.05;
+          max-width: 660px; margin-bottom: 20px; position: relative; z-index: 2;
+        }
+        .sg-dark > p {
+          font-size: 15px; color: rgba(255,255,255,.45);
+          max-width: 400px; line-height: 1.7;
+          position: relative; z-index: 2;
+        }
+        .sg-dark-visual {
+          position: relative; z-index: 2; margin-top: 52px;
+          display: flex; align-items: center; justify-content: center; gap: 20px;
+        }
+        .sg-hand {
+          font-size: 80px; opacity: .18; filter: grayscale(1);
+          line-height: 1;
+        }
+        .sg-spark {
+          font-size: 44px; line-height: 1;
+          filter: drop-shadow(0 0 28px rgba(0,196,161,.9));
+          opacity: .95;
         }
 
-        /* ── Fade-in stagger ── */
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(28px); }
+        /* FEATURES */
+        .sg-section { max-width: 1120px; margin: 0 auto; padding: 80px 48px; }
+        .sg-label {
+          display: inline-block; font-size: 11px; font-weight: 700;
+          letter-spacing: .07em; text-transform: uppercase;
+          color: #fff; background: #0A0A0A;
+          padding: 4px 10px; border-radius: 3px; margin-bottom: 22px;
+        }
+        .sg-h2 {
+          font-family: 'DM Serif Display', serif;
+          font-size: clamp(30px, 4vw, 50px);
+          font-weight: 400; letter-spacing: -.03em; line-height: 1.08;
+          color: #0A0A0A; max-width: 540px; margin-bottom: 14px;
+        }
+        .sg-h2 em { font-style: italic; }
+        .sg-sub {
+          font-size: 15px; color: #6B6B6B;
+          max-width: 480px; line-height: 1.65; margin-bottom: 48px;
+        }
+        .sg-grid-2 {
+          display: grid; grid-template-columns: 1fr 1fr;
+          gap: 2px; background: rgba(0,0,0,.07);
+          border: 1px solid rgba(0,0,0,.07); border-radius: 16px; overflow: hidden;
+        }
+        .sg-feat-card { background: #fff; padding: 36px; }
+        .sg-feat-illo {
+          height: 164px; border-radius: 10px; overflow: hidden;
+          display: flex; align-items: center; justify-content: center;
+          margin-bottom: 28px; font-size: 66px;
+        }
+        .sg-feat-title {
+          font-size: 16px; font-weight: 600; color: #0A0A0A;
+          letter-spacing: -.01em; margin-bottom: 8px;
+        }
+        .sg-feat-desc { font-size: 14px; color: #6B6B6B; line-height: 1.65; }
+
+        /* TIERS */
+        .sg-tiers { max-width: 920px; margin: 0 auto; padding: 80px 48px; }
+        .sg-tiers-head { text-align: center; margin-bottom: 64px; }
+        .sg-tiers-head .sg-h2 { max-width: 100%; margin: 0 auto 12px; }
+        .sg-tiers-head p { font-size: 15px; color: #6B6B6B; max-width: 460px; margin: 0 auto; line-height: 1.65; }
+        .sg-tier {
+          display: grid; grid-template-columns: 220px 1fr;
+          gap: 48px; padding: 52px 0;
+          border-top: 1px solid rgba(0,0,0,.08);
+          align-items: start;
+        }
+        .sg-tier:last-child { border-bottom: 1px solid rgba(0,0,0,.08); }
+        .sg-tier-label {
+          display: inline-block; font-size: 10px; font-weight: 700;
+          letter-spacing: .07em; text-transform: uppercase;
+          color: #fff; background: #0A0A0A;
+          padding: 3px 9px; border-radius: 3px; margin-bottom: 14px;
+        }
+        .sg-tier-title {
+          font-family: 'DM Serif Display', serif;
+          font-size: 27px; font-weight: 400; letter-spacing: -.025em;
+          color: #0A0A0A; line-height: 1.15; margin-bottom: 10px;
+        }
+        .sg-tier-desc { font-size: 14px; color: #6B6B6B; line-height: 1.65; margin-bottom: 24px; }
+        .sg-tier-cta {
+          font-size: 13px; font-weight: 500; color: #fff;
+          background: #00897B; text-decoration: none;
+          padding: 10px 22px; border-radius: 100px;
+          display: inline-block; transition: background .2s;
+        }
+        .sg-tier-cta:hover { background: #006B61; }
+        .sg-tier-feats { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+        .sg-tier-feat {
+          padding: 13px 18px; background: #F5F5F4;
+          border-radius: 8px; font-size: 14px; color: #3D3D3D;
+        }
+
+        /* FAQ */
+        .sg-faq {
+          max-width: 1120px; margin: 0 auto; padding: 80px 48px;
+          display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+          align-items: start;
+          border-top: 1px solid rgba(0,0,0,.07);
+        }
+        .sg-faq-l p { font-size: 15px; color: #6B6B6B; line-height: 1.7; margin-top: 14px; max-width: 340px; }
+        .sg-faq-r details { border-top: 1px solid rgba(0,0,0,.08); }
+        .sg-faq-r details:last-child { border-bottom: 1px solid rgba(0,0,0,.08); }
+        .sg-faq-r summary {
+          display: flex; justify-content: space-between; align-items: center;
+          padding: 20px 0; font-size: 14px; font-weight: 500; color: #0A0A0A;
+          cursor: pointer; list-style: none; user-select: none; gap: 20px;
+        }
+        .sg-faq-r summary::-webkit-details-marker { display: none; }
+        .sg-faq-plus {
+          flex-shrink: 0; width: 24px; height: 24px;
+          border: 1px solid rgba(0,0,0,.15); border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 16px; font-weight: 300; color: #6B6B6B;
+          transition: transform .25s, background .2s, border-color .2s, color .2s;
+        }
+        details[open] .sg-faq-plus {
+          transform: rotate(45deg);
+          background: #0A0A0A; border-color: #0A0A0A; color: #fff;
+        }
+        .sg-faq-r details > div {
+          padding: 0 0 20px; font-size: 14px; color: #6B6B6B; line-height: 1.7;
+        }
+
+        /* CTA */
+        .sg-cta {
+          max-width: 1120px; margin: 0 auto; padding: 80px 48px;
+          display: grid; grid-template-columns: 1fr 1fr; gap: 64px;
+          align-items: start;
+          border-top: 1px solid rgba(0,0,0,.07);
+        }
+        .sg-cta-l h2 {
+          font-family: 'DM Serif Display', serif;
+          font-size: clamp(36px, 4.5vw, 58px);
+          font-weight: 400; letter-spacing: -.038em; line-height: 1.0;
+          color: #0A0A0A; margin-bottom: 28px;
+        }
+        .sg-cta-list { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+        .sg-cta-list li {
+          display: flex; align-items: flex-start; gap: 10px;
+          font-size: 14px; color: #3D3D3D; line-height: 1.5;
+        }
+        .sg-check {
+          flex-shrink: 0; width: 18px; height: 18px; margin-top: 1px;
+          background: #E3F4F0; border: 1.5px solid #00897B;
+          border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        }
+        .sg-cta-r {
+          background: #0A0A0A; border-radius: 20px; padding: 36px;
+          display: flex; flex-direction: column; gap: 24px;
+        }
+        .sg-cta-r-title {
+          font-family: 'DM Serif Display', serif; font-size: 22px;
+          font-weight: 400; letter-spacing: -.02em; color: #FAFAF8;
+        }
+        .sg-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .sg-stat {
+          background: rgba(255,255,255,.06); border-radius: 12px; padding: 18px 20px;
+        }
+        .sg-stat-num {
+          font-family: 'DM Serif Display', serif; font-size: 30px;
+          font-weight: 400; color: #00C4A1; letter-spacing: -.03em; line-height: 1;
+        }
+        .sg-stat-lbl { font-size: 11px; color: rgba(255,255,255,.38); margin-top: 4px; line-height: 1.4; }
+
+        /* FOOTER */
+        .sg-foot-outer {
+          border-top: 1px solid rgba(0,0,0,.07); position: relative; overflow: hidden;
+        }
+        .sg-foot-leaf {
+          position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
+          opacity: .045; pointer-events: none; width: 600px;
+        }
+        .sg-footer { max-width: 1120px; margin: 0 auto; padding: 52px 48px 30px; position: relative; }
+        .sg-foot-top {
+          display: grid; grid-template-columns: 1.5fr 1fr 1fr;
+          gap: 64px; margin-bottom: 48px;
+        }
+        .sg-foot-logo {
+          display: flex; align-items: center; gap: 8px;
+          font-family: 'DM Serif Display', serif; font-size: 18px;
+          color: #0A0A0A; text-decoration: none;
+          letter-spacing: -.02em; margin-bottom: 12px; width: fit-content;
+        }
+        .sg-foot-brand p { font-size: 13px; color: #9B9B9B; line-height: 1.65; max-width: 240px; }
+        .sg-foot-socials { display: flex; gap: 8px; margin-top: 20px; }
+        .sg-foot-socials a {
+          width: 30px; height: 30px;
+          border: 1px solid rgba(0,0,0,.12); border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 12px; color: #6B6B6B; text-decoration: none;
+          transition: border-color .2s, color .2s;
+        }
+        .sg-foot-socials a:hover { border-color: #0A0A0A; color: #0A0A0A; }
+        .sg-foot-col h4 {
+          font-size: 11px; font-weight: 600; letter-spacing: .07em;
+          text-transform: uppercase; color: #9B9B9B; margin-bottom: 16px;
+        }
+        .sg-foot-col ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+        .sg-foot-col ul a { font-size: 13px; color: #3D3D3D; text-decoration: none; transition: color .2s; }
+        .sg-foot-col ul a:hover { color: #0A0A0A; }
+        .sg-foot-bottom {
+          display: flex; justify-content: space-between; align-items: center;
+          padding-top: 24px; border-top: 1px solid rgba(0,0,0,.06);
+        }
+        .sg-foot-bottom span { font-size: 12px; color: #9B9B9B; }
+
+        /* HERO — animación CSS pura, no depende de JS ni de navegación */
+        @keyframes heroUp {
+          from { opacity: 0; transform: translateY(22px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        .fu  { animation: fadeUp .8s cubic-bezier(0.16,1,0.3,1) both; }
-        .d1  { animation-delay: .10s; }
-        .d2  { animation-delay: .22s; }
-        .d3  { animation-delay: .34s; }
-        .d4  { animation-delay: .46s; }
-        .d5  { animation-delay: .58s; }
-
-        /* ── Badge ── */
-        .eco-badge {
-          display: inline-flex; align-items: center; gap: 8px;
-          padding: 5px 14px; border-radius: 100px;
-          background: rgba(0,137,123,0.12);
-          border: 1px solid rgba(0,229,180,0.22);
-          font-size: 11.5px; font-weight: 600; letter-spacing: .06em;
-          color: #00E5B4; text-transform: uppercase;
+        .hero-anim {
+          animation: heroUp .7s cubic-bezier(.16,1,.3,1) both;
         }
-        .eco-badge-dot {
-          width: 6px; height: 6px; border-radius: 50%;
-          background: #00E5B4; box-shadow: 0 0 7px #00E5B4;
-        }
+        .ha-1 { animation-delay: .08s; }
+        .ha-2 { animation-delay: .18s; }
+        .ha-3 { animation-delay: .26s; }
+        .ha-4 { animation-delay: .34s; }
+        .ha-5 { animation-delay: .44s; }
 
-        /* ── Buttons: pill + Button-in-Button ── */
-        .btn-cta {
-          display: inline-flex; align-items: center; gap: 8px;
-          padding: 13px 20px 13px 26px; border-radius: 100px;
-          background: linear-gradient(135deg, #00897B 0%, #006B61 100%);
-          color: #fff; font-weight: 700; font-size: 15px;
-          border: 1px solid rgba(0,229,180,0.18);
-          box-shadow: 0 8px 28px rgba(0,137,123,0.32), inset 0 1px 0 rgba(255,255,255,0.12);
-          text-decoration: none; transition: all .28s cubic-bezier(0.16,1,0.3,1); cursor: pointer;
+        /* SCROLL REVEAL — sólo para secciones bajo el fold */
+        .sr {
+          opacity: 0; transform: translateY(20px);
+          transition: opacity .65s cubic-bezier(.16,1,.3,1), transform .65s cubic-bezier(.16,1,.3,1);
         }
-        .btn-cta:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 14px 36px rgba(0,137,123,0.48), inset 0 1px 0 rgba(255,255,255,0.12);
-          background: linear-gradient(135deg, #00A896 0%, #00897B 100%);
-        }
-        .btn-cta:hover .btn-icon { transform: translateX(2px) scale(1.08); }
-        .btn-icon {
-          width: 26px; height: 26px; border-radius: 50%;
-          background: rgba(255,255,255,0.16);
-          display: inline-flex; align-items: center; justify-content: center;
-          flex-shrink: 0; transition: transform .25s cubic-bezier(0.16,1,0.3,1);
-        }
-        .btn-outline {
-          display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-          padding: 13px 26px; border-radius: 100px;
-          background: rgba(255,255,255,0.04);
-          color: rgba(230,244,241,0.72); font-weight: 500; font-size: 15px;
-          border: 1px solid rgba(255,255,255,0.1);
-          text-decoration: none; transition: all .28s cubic-bezier(0.16,1,0.3,1);
-        }
-        .btn-outline:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); color: #E6F4F1; }
+        .sr.visible { opacity: 1; transform: translateY(0); }
+        .sr-d1 { transition-delay: .06s; } .sr-d2 { transition-delay: .12s; }
+        .sr-d3 { transition-delay: .18s; } .sr-d4 { transition-delay: .24s; }
 
-        /* ── Hero buttons group ── */
-        .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
-
-        /* ── Nav ── */
-        .sticky-nav {
-          position: sticky; top: 0; z-index: 50;
-          border-bottom: 1px solid rgba(255,255,255,0.055);
-          backdrop-filter: blur(22px);
-          background: rgba(7,13,10,0.82);
-        }
-        .nav-inner {
-          max-width: 1200px; margin: 0 auto;
-          padding: 0 20px; height: 60px;
-          display: flex; align-items: center; justify-content: space-between;
-        }
-        .nav-links { display: flex; gap: 28px; }
-        .nav-auth  { display: flex; gap: 10px; align-items: center; }
-        .nav-login { color: rgba(255,255,255,0.42); text-decoration: none; font-size: 14px; font-weight: 500; transition: color .2s; white-space: nowrap; }
-        .nav-login:hover { color: #00E5B4; }
-
-        /* ── Nav links ── */
-        .nav-link { color: rgba(255,255,255,0.42); text-decoration: none; font-size: 14px; font-weight: 500; transition: color .2s; }
-        .nav-link:hover { color: #00E5B4; }
-
-        /* ── Divider ── */
-        .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(0,137,123,0.26), transparent); border: none; margin: 0; }
-        .divider-wrap { padding: 0 24px; }
-
-        /* ── Marquee ── */
-        @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-        .marquee-wrap { overflow: hidden; }
-        .marquee-track { display: flex; width: max-content; animation: marquee 22s linear infinite; }
-        .marquee-item { display: flex; align-items: center; gap: 18px; padding: 0 22px; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.18); white-space: nowrap; text-transform: uppercase; letter-spacing: .08em; }
-        .marquee-dot { width: 3px; height: 3px; border-radius: 50%; background: #00897B; opacity: .7; display: inline-block; }
-
-        /* ── Hero stats ── */
-        .hero-stats { display: flex; gap: 40px; flex-wrap: wrap; margin-top: 56px; padding-top: 36px; border-top: 1px solid rgba(255,255,255,0.07); }
-        .stat-val { font-family: 'Syne', sans-serif; font-size: 40px; font-weight: 800; line-height: 1; color: #00E5B4; }
-        .stat-sub { font-size: 12px; color: rgba(255,255,255,0.32); font-weight: 500; margin-top: 3px; }
-
-        /* ── Step row (numbered vertical list) ── */
-        .step-row {
-          display: grid; grid-template-columns: 72px 1fr;
-          gap: 28px; padding: 36px 0; align-items: start;
-          border-top: 1px solid rgba(255,255,255,0.05);
-        }
-        .step-row:first-child { border-top: none; }
-        .step-num {
-          font-family: 'Syne', sans-serif; font-size: 52px; font-weight: 800;
-          line-height: 1; user-select: none;
-          background: linear-gradient(135deg, rgba(0,229,180,0.28), rgba(0,229,180,0.06));
-          -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-        }
-        .step-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: #E6F4F1; letter-spacing: -.01em; }
-        .step-desc { color: rgba(230,244,241,.42); font-size: 15px; line-height: 1.75; }
-
-        /* ── Role bento (asymmetric) ── */
-        .role-bento {
-          display: grid; grid-template-columns: 1.45fr 1fr;
-          grid-template-rows: auto auto; gap: 14px;
-        }
-        .role-card {
-          background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07);
-          border-radius: 22px; padding: 28px; display: flex; flex-direction: column;
-          position: relative; overflow: hidden; transition: all .38s cubic-bezier(0.16,1,0.3,1);
-        }
-        .role-card-wide { grid-row: 1 / 3; padding: 36px; }
-        .role-card::before {
-          content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(0,229,180,0.35), transparent);
-          opacity: 0; transition: opacity .38s ease;
-        }
-        .role-card:hover::before { opacity: 1; }
-        .role-card:hover { background: rgba(255,255,255,0.04); border-color: rgba(0,229,180,0.14); transform: translateY(-3px); }
-
-        /* ── Feature bento (2x2 asymmetric) ── */
-        .feature-bento {
-          display: grid; grid-template-columns: 1.5fr 1fr;
-          grid-template-rows: auto auto; gap: 12px;
-        }
-        .feat-cell {
-          border-radius: 20px; padding: 28px;
-          border: 1px solid rgba(255,255,255,0.06);
-        }
-        .feat-cell-accent { background: linear-gradient(135deg, rgba(0,137,123,0.12), rgba(0,137,123,0.04)); border-color: rgba(0,137,123,0.16); }
-        .feat-cell-blue   { background: linear-gradient(135deg, rgba(21,101,192,0.1), rgba(21,101,192,0.03)); border-color: rgba(21,101,192,0.14); }
-        .feat-cell-plain  { background: rgba(255,255,255,0.018); }
-
-        /* ── Double-Bezel (Doppelrand) on impact CTA ── */
-        .dbezel-outer {
-          padding: 6px; border-radius: 36px;
-          background: rgba(0,137,123,0.06);
-          border: 1px solid rgba(0,137,123,0.1);
-        }
-        .dbezel-inner {
-          border-radius: 30px; padding: 72px 56px; text-align: center;
-          background: linear-gradient(135deg, rgba(0,137,123,0.12) 0%, rgba(21,101,192,0.08) 60%, rgba(0,137,123,0.04) 100%);
-          border: 1px solid rgba(0,229,180,0.09);
-          position: relative; overflow: hidden;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
-        }
-        .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-
-        /* ── Scale bar ── */
-        .scale-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 40px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
-        .scale-pill { padding: 5px 14px; border-radius: 100px; font-size: 12px; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
-
-        /* ── Icon box ── */
-        .icon-box { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-
-        /* ── Feature dot ── */
-        .feat-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
-
-        /* ── Section header ── */
-        .sec-head { margin-bottom: 56px; }
-        .sec-head-lg { margin-bottom: 64px; }
-
-        /* ────────────────────────────────────────────
-           RESPONSIVE — tablet (≤ 900px)
-        ──────────────────────────────────────────── */
+        /* RESPONSIVE */
         @media (max-width: 900px) {
-          .role-bento { grid-template-columns: 1fr 1fr; }
-          .role-card-wide { grid-row: 1 / 3; }
-          .feature-bento { grid-template-columns: 1fr 1fr; }
-        }
-
-        /* ────────────────────────────────────────────
-           RESPONSIVE — mobile (≤ 680px)
-        ──────────────────────────────────────────── */
-        @media (max-width: 680px) {
-          /* Section spacing */
-          .sec     { padding: 64px 20px; }
-          .sec-md  { padding: 56px 20px; }
-          .sec-end { padding: 0 20px 64px; }
-          .hero-content { padding: 72px 20px 56px; }
-          .divider-wrap { padding: 0 20px; }
-
-          /* Nav */
-          .nav-inner  { padding: 0 16px; height: 56px; }
-          .nav-links  { display: none; }
-          .nav-login  { display: none; }
-
-          /* Hero */
-          .hero-btns { flex-direction: column; gap: 10px; }
-          .hero-btns .btn-cta,
-          .hero-btns .btn-outline { width: 100%; justify-content: center; }
-          .hero-stats { gap: 28px; margin-top: 40px; padding-top: 28px; }
-          .stat-val { font-size: 32px; }
-
-          /* Steps */
-          .step-row { grid-template-columns: 48px 1fr; gap: 16px; padding: 28px 0; }
-          .step-num { font-size: 38px; }
-          .step-title { font-size: 17px; }
-
-          /* Section headers */
-          .sec-head    { margin-bottom: 40px; }
-          .sec-head-lg { margin-bottom: 48px; }
-
-          /* Role bento */
-          .role-bento { grid-template-columns: 1fr; }
-          .role-card-wide { grid-row: auto; padding: 24px; }
-          .role-card { padding: 22px; }
-
-          /* Feature bento */
-          .feature-bento { grid-template-columns: 1fr; }
-          .feat-cell { padding: 22px; }
-          .feat-cell.feat-cell-accent,
-          .feat-cell.feat-cell-blue { padding: 22px; }
-
-          /* Impact CTA */
-          .dbezel-outer { border-radius: 24px; }
-          .dbezel-inner { border-radius: 20px; padding: 48px 24px; }
-          .cta-btns { flex-direction: column; gap: 10px; }
-          .cta-btns .btn-cta,
-          .cta-btns .btn-outline { width: 100%; justify-content: center; }
-        }
-
-        /* ────────────────────────────────────────────
-           RESPONSIVE — small mobile (≤ 400px)
-        ──────────────────────────────────────────── */
-        @media (max-width: 400px) {
-          .sec     { padding: 48px 16px; }
-          .sec-md  { padding: 44px 16px; }
-          .sec-end { padding: 0 16px 48px; }
-          .hero-content { padding: 60px 16px 44px; }
-          .divider-wrap { padding: 0 16px; }
-          .eco-badge { font-size: 10px; padding: 4px 12px; }
-          .step-row { grid-template-columns: 40px 1fr; gap: 12px; padding: 22px 0; }
-          .step-num { font-size: 30px; }
-          .scale-bar { gap: 6px; }
-          .scale-pill { padding: 4px 10px; font-size: 11px; }
+          .sg-nav { padding: 16px 20px; }
+          .sg-nav-links li:not(:last-child) { display: none; }
+          .sg-hero { padding: 100px 24px 60px; }
+          .sg-section, .sg-tiers { padding: 60px 24px; }
+          .sg-dark { padding: 60px 24px; }
+          .sg-grid-2 { grid-template-columns: 1fr; }
+          .sg-tier { grid-template-columns: 1fr; gap: 24px; }
+          .sg-faq { grid-template-columns: 1fr; gap: 40px; padding: 60px 24px; }
+          .sg-cta { grid-template-columns: 1fr; gap: 36px; padding: 60px 24px; }
+          .sg-foot-top { grid-template-columns: 1fr; gap: 36px; }
+          .sg-footer { padding: 48px 24px 28px; }
+          .sg-foot-bottom { flex-direction: column; gap: 10px; text-align: center; }
         }
       `}</style>
 
-      <div className="eco-root">
+      {/* ── NAV ── */}
+      <nav id="main-nav" className="sg-nav">
+        <Link href="/" className="sg-nav-logo">
+          <Leaf size={17} color="#00897B" />
+          EcoRed
+        </Link>
+        <ul className="sg-nav-links">
+          <li><a href="#como-funciona">[Cómo funciona]</a></li>
+          <li><a href="#funcionalidades">[Funcionalidades]</a></li>
+          <li><a href="#impacto">[Impacto]</a></li>
+          <li><a href="#faq">[FAQ]</a></li>
+          <li><Link href="/auth/login" className="sg-nav-cta">[Ingresar]</Link></li>
+        </ul>
+      </nav>
 
-        {/* ── NAV ── */}
-        <header className="sticky-nav">
-          <div className="nav-inner">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 32, height: 32, borderRadius: 9, background: 'linear-gradient(135deg,#00897B,#005F57)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 12px rgba(0,137,123,.4)', flexShrink: 0 }}>
-                <Leaf size={15} color="#fff" />
-              </div>
-              <span className="display-font" style={{ fontSize: 18, fontWeight: 800, color: '#E6F4F1', letterSpacing: '-.02em' }}>EcoRed</span>
-            </div>
-
-            <nav className="nav-links">
-              <a href="#como-funciona" className="nav-link">Cómo funciona</a>
-              <a href="#para-quien"    className="nav-link">Para quién</a>
-              <a href="#impacto"       className="nav-link">Impacto</a>
-            </nav>
-
-            <div className="nav-auth">
-              <Link href="/auth/login" className="nav-login">Iniciar sesión</Link>
-              <Link href="/auth/register" className="btn-cta" style={{ padding: '8px 14px 8px 18px', fontSize: 13 }}>
-                Empezar
-                <span className="btn-icon" style={{ width: 20, height: 20 }}><ArrowRight size={11} /></span>
-              </Link>
-            </div>
-          </div>
-        </header>
-
-        {/* ── HERO ── */}
-        <section style={{ position: 'relative', minHeight: '100dvh', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
-          <div className="hero-bg">
-            <div className="grid-overlay" />
-            <div className="blob blob-1" />
-            <div className="blob blob-2" />
-            <div className="blob blob-3" />
-          </div>
-
-          {[
-            { l: '8%',  b: '18%', d: '0s',   x: '22px',  dur: '13s' },
-            { l: '22%', b: '8%',  d: '2.5s', x: '-28px', dur: '16s' },
-            { l: '55%', b: '22%', d: '5s',   x: '14px',  dur: '11s' },
-            { l: '72%', b: '6%',  d: '1.2s', x: '-18px', dur: '14s' },
-            { l: '42%', b: '35%', d: '7s',   x: '26px',  dur: '12s' },
-            { l: '88%', b: '45%', d: '3.5s', x: '-12px', dur: '15s' },
-          ].map((p, i) => (
-            <div key={i} className="particle" style={{ left: p.l, bottom: p.b, animationDelay: p.d, animationDuration: p.dur, ['--x' as string]: p.x }} />
-          ))}
-
-          <div className="wrap hero-content" style={{ position: 'relative', zIndex: 1 }}>
-            <div className="fu d1">
-              <span className="eco-badge">
-                <span className="eco-badge-dot" />
-                IA al servicio del planeta · QuipuSoft 2026
-              </span>
-            </div>
-
-            <h1 className="display-font fu d2" style={{ fontSize: 'clamp(44px,8vw,100px)', fontWeight: 800, lineHeight: 1.0, marginTop: 24, letterSpacing: '-.03em', color: '#E6F4F1' }}>
-              Tu comunidad,{' '}
-              <span style={{ background: 'linear-gradient(135deg,#00897B 0%,#00E5B4 55%,#4B9EFF 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', display: 'block' }}>
-                más verde.
-              </span>
-            </h1>
-
-            <p className="fu d3" style={{ fontSize: 'clamp(15px,2vw,18px)', lineHeight: 1.75, color: 'rgba(230,244,241,.52)', maxWidth: 500, marginTop: 20 }}>
-              EcoRed conecta ciudadanos, colegios y municipios para reciclar mejor con IA.
-              Escanea residuos, mide tu impacto y compite con tu comunidad.
-            </p>
-
-            <div className="fu d4 hero-btns" style={{ marginTop: 36 }}>
-              <Link href="/auth/register" className="btn-cta">
-                Empezar gratis
-                <span className="btn-icon"><ArrowRight size={14} /></span>
-              </Link>
-              <a href="#como-funciona" className="btn-outline">
-                Ver cómo funciona
-              </a>
-            </div>
-
-            <div className="fu d5 hero-stats">
-              {[
-                { val: '3',        sub: 'roles · aula a ciudad' },
-                { val: 'IA',       sub: 'Llama 4 Scout Vision' },
-                { val: 'Realtime', sub: 'Rankings en vivo' },
-              ].map(s => (
-                <div key={s.val}>
-                  <div className="stat-val">{s.val}</div>
-                  <div className="stat-sub">{s.sub}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 140, background: 'linear-gradient(to top,#070D0A,transparent)', pointerEvents: 'none' }} />
-        </section>
-
-        {/* ── MARQUEE ── */}
-        <div className="marquee-wrap" style={{ borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)', padding: '14px 0', background: 'rgba(255,255,255,0.01)' }}>
-          <div className="marquee-track">
-            {['Escaneo con IA', 'Reciclaje inteligente', 'Impacto medible', 'Rankings en vivo', 'Puntos de acopio', 'Retos comunitarios', 'CO2 evitado', 'Educación ambiental', 'Llama 4 Vision', 'Supabase Realtime',
-              'Escaneo con IA', 'Reciclaje inteligente', 'Impacto medible', 'Rankings en vivo', 'Puntos de acopio', 'Retos comunitarios', 'CO2 evitado', 'Educación ambiental', 'Llama 4 Vision', 'Supabase Realtime']
-              .map((t, i) => (
-                <span key={i} className="marquee-item">
-                  {t} <span className="marquee-dot" />
-                </span>
-              ))
-            }
-          </div>
+      {/* ── HERO ── */}
+      <section className="sg-hero" id="inicio">
+        <p className="sg-eyebrow hero-anim ha-1">EcoRed — Reciclaje inteligente para el Perú</p>
+        <h1 className="sg-h1 hero-anim ha-2">
+          La nueva era del<br />
+          <em>reciclaje comunitario.</em>
+        </h1>
+        <p className="sg-hero-sub hero-anim ha-3">
+          Escanea residuos con IA, conecta con tu comunidad y convierte el reciclaje en impacto ambiental medible.
+        </p>
+        <div className="sg-btns hero-anim ha-4">
+          <a href="#funcionalidades" className="sg-btn-out">[¿Por qué EcoRed?]</a>
+          <Link href="/auth/register" className="sg-btn-blk">Empieza gratis</Link>
         </div>
 
-        {/* ── HOW IT WORKS ── */}
-        <section id="como-funciona" className="sec">
-          <div className="wrap">
-            <div className="sec-head-lg">
-              <span className="eco-badge" style={{ marginBottom: 18, display: 'inline-flex' }}>Proceso</span>
-              <h2 className="display-font" style={{ fontSize: 'clamp(30px,5vw,56px)', fontWeight: 800, color: '#E6F4F1', letterSpacing: '-.025em', lineHeight: 1.1, marginBottom: 14 }}>
-                Tres pasos para<br />reciclar mejor
-              </h2>
-              <p style={{ color: 'rgba(230,244,241,.42)', fontSize: 'clamp(14px,2vw,17px)', maxWidth: 420, lineHeight: 1.7 }}>
-                Sin complicaciones. Del primer escaneo al impacto colectivo en tu comunidad.
-              </p>
-            </div>
+        <div className="sg-art-wrap hero-anim ha-5">
+          <span className="sg-corner sg-tl" />
+          <span className="sg-corner sg-tr" />
+          <span className="sg-corner sg-bl" />
+          <span className="sg-corner sg-br" />
+          <div className="sg-art-frame">
+            <PixelLeaf />
+          </div>
+          <p className="sg-art-caption">EcoRed · Clasificación de residuos con IA · Perú 2026</p>
+        </div>
+      </section>
 
-            <div>
-              {[
-                { num: '01', Icon: Camera,    rgb: '0,137,123',   accent: '#00897B', title: 'Escanea el residuo',    desc: 'Toma una foto y la IA identifica el material, si es reciclable y cómo desecharlo correctamente en Perú.' },
-                { num: '02', Icon: BarChart3, rgb: '0,191,170',   accent: '#00BFAA', title: 'Acumula impacto',       desc: 'Cada escaneo suma EcoPuntos y registra CO₂ evitado. Ve tu huella ambiental crecer en tiempo real.' },
-                { num: '03', Icon: Users,     rgb: '107,163,255', accent: '#6BA3FF', title: 'Compite en comunidad', desc: 'Únete a tu aula, colegio o municipio. El leaderboard muestra quién lidera el cambio en tu zona.' },
-              ].map(s => (
-                <div key={s.num} className="step-row">
-                  <div className="step-num">{s.num}</div>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                      <div className="icon-box" style={{ background: `rgba(${s.rgb},.12)`, border: `1px solid rgba(${s.rgb},.2)` }}>
-                        <s.Icon size={17} color={s.accent} />
-                      </div>
-                      <h3 className="step-title">{s.title}</h3>
-                    </div>
-                    <p className="step-desc">{s.desc}</p>
-                  </div>
-                </div>
-              ))}
+      {/* ── MARQUEE ── */}
+      <div className="sg-marquee-wrap">
+        <p className="sg-marquee-label">Instituciones que confían en EcoRed</p>
+        <div className="sg-marquee-row">
+          <div className="sg-marquee-track">
+            {[...MARQUEE, ...MARQUEE].map((name, i) => (
+              <span key={i} className="sg-marquee-item">{name}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── DARK / INTERSECTION ── */}
+      <section className="sg-dark" id="como-funciona">
+        <div className="sg-dark-glow" />
+        <h2 className="sr">La Intersección<br />Humana-Ecológica.</h2>
+        <p className="sr">
+          Uniendo tecnología de IA con acción comunitaria para escalar el impacto ambiental de cada barrio en el Perú.
+        </p>
+        <div className="sg-dark-visual sr">
+          <span className="sg-hand">🤚</span>
+          <span className="sg-spark">✦</span>
+          <span className="sg-hand">🌿</span>
+        </div>
+      </section>
+
+      {/* ── FEATURES ── */}
+      <section className="sg-section" id="funcionalidades">
+        <span className="sg-label sr">Funcionalidades</span>
+        <h2 className="sg-h2 sr">Funcionalidades diseñadas<br /><em>para escalar.</em></h2>
+        <p className="sg-sub sr">
+          Desde el escáner de IA hasta el panel municipal, cada herramienta está construida para generar impacto real.
+        </p>
+        <div className="sg-grid-2 sr">
+          {FEATURES.map((f, i) => (
+            <div key={i} className="sg-feat-card">
+              <div className="sg-feat-illo" style={{ background: f.bg }}>
+                <span style={{ fontSize: 62, filter: `drop-shadow(0 8px 24px rgba(${f.shadow},.35))` }}>
+                  {f.icon}
+                </span>
+              </div>
+              <div className="sg-feat-title">{f.title}</div>
+              <p className="sg-feat-desc">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── TIERS ── */}
+      <section className="sg-tiers" id="impacto">
+        <div className="sg-tiers-head sr">
+          <h2 className="sg-h2">Para cada actor<br /><em>del cambio.</em></h2>
+          <p>EcoRed se adapta al ciudadano individual, a la institución educativa y al municipio que quiere liderar la transición verde.</p>
+        </div>
+        <div>
+          {TIERS.map((tier, i) => (
+            <div key={i} className="sg-tier sr">
+              <div>
+                <span className="sg-tier-label">{tier.label}</span>
+                <div className="sg-tier-title">{tier.title}</div>
+                <p className="sg-tier-desc">{tier.desc}</p>
+                <Link href={tier.href} className="sg-tier-cta">{tier.cta}</Link>
+              </div>
+              <ul className="sg-tier-feats">
+                {tier.feats.map((feat, j) => (
+                  <li key={j} className="sg-tier-feat">{feat}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section className="sg-faq" id="faq">
+        <div className="sg-faq-l sr">
+          <h2 className="sg-h2">Preguntas<br /><em>frecuentes.</em></h2>
+          <p>Respuestas directas sobre privacidad, tecnología y cómo EcoRed transforma el reciclaje en Perú.</p>
+        </div>
+        <div className="sg-faq-r sr">
+          {FAQS.map((faq, i) => (
+            <details key={i}>
+              <summary>
+                {faq.q}
+                <span className="sg-faq-plus">+</span>
+              </summary>
+              <div>{faq.a}</div>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      {/* ── CTA ── */}
+      <section className="sg-cta">
+        <div className="sg-cta-l sr">
+          <h2>Únete a<br />EcoRed.</h2>
+          <ul className="sg-cta-list">
+            {CTA_ITEMS.map((item, i) => (
+              <li key={i}>
+                <span className="sg-check">
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
+                    stroke="#00897B" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1.5 5.5l2.5 2.5 4.5-5" />
+                  </svg>
+                </span>
+                {item}
+              </li>
+            ))}
+          </ul>
+          <Link href="/auth/register" className="sg-btn-grn">Crear cuenta gratis</Link>
+        </div>
+        <div className="sg-cta-r sr">
+          <div className="sg-cta-r-title">Impacto en tiempo real</div>
+          <div className="sg-stats">
+            {STATS.map((s, i) => (
+              <div key={i} className="sg-stat">
+                <div className="sg-stat-num">{s.num}</div>
+                <div className="sg-stat-lbl" style={{ whiteSpace: "pre-line" }}>{s.lbl}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FOOTER ── */}
+      <div className="sg-foot-outer">
+        <div className="sg-foot-leaf" aria-hidden="true">
+          <PixelLeaf scale={2} />
+        </div>
+        <footer className="sg-footer">
+          <div className="sg-foot-top">
+            <div className="sg-foot-brand">
+              <Link href="/" className="sg-foot-logo">
+                <Leaf size={16} color="#00897B" />
+                EcoRed
+              </Link>
+              <p>Plataforma de reciclaje comunitario con inteligencia artificial para el Perú.</p>
+              <div className="sg-foot-socials">
+                <a href="#" aria-label="LinkedIn">in</a>
+                <a href="#" aria-label="X">𝕏</a>
+                <a href="#" aria-label="YouTube">▶</a>
+              </div>
+            </div>
+            <div className="sg-foot-col">
+              <h4>[Páginas]</h4>
+              <ul>
+                <li><Link href="/">[Inicio]</Link></li>
+                <li><a href="#funcionalidades">[Funcionalidades]</a></li>
+                <li><a href="#impacto">[Impacto]</a></li>
+                <li><Link href="/auth/login">[Ingresar]</Link></li>
+              </ul>
+            </div>
+            <div className="sg-foot-col">
+              <h4>[Soporte]</h4>
+              <ul>
+                <li><Link href="/auth/register">[Registro]</Link></li>
+                <li><a href="#faq">[FAQ]</a></li>
+                <li><a href="#">[Privacidad]</a></li>
+                <li><a href="#">[Términos]</a></li>
+              </ul>
             </div>
           </div>
-        </section>
-
-        <div className="divider-wrap"><hr className="divider" /></div>
-
-        {/* ── FOR WHOM ── */}
-        <section id="para-quien" className="sec">
-          <div className="wrap">
-            <div className="sec-head">
-              <h2 className="display-font" style={{ fontSize: 'clamp(30px,5vw,56px)', fontWeight: 800, color: '#E6F4F1', letterSpacing: '-.025em', lineHeight: 1.1, marginBottom: 14 }}>
-                Diseñado para<br />todos los niveles
-              </h2>
-              <p style={{ color: 'rgba(230,244,241,.42)', fontSize: 'clamp(14px,2vw,17px)', maxWidth: 420, lineHeight: 1.7 }}>
-                Escala desde un ciudadano hasta una ciudad entera, sin cambiar de plataforma.
-              </p>
-            </div>
-
-            <div className="scale-bar">
-              {['Ciudadano', 'Aula', 'Colegio', 'Municipio', 'Ciudad'].map((lv, i, arr) => (
-                <div key={lv} style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                  <span className="scale-pill" style={{
-                    background: `rgba(${i <= 2 ? '0,137,123' : '21,101,192'},${ .07 + i * .04})`,
-                    border: `1px solid rgba(${i <= 2 ? '0,137,123' : '21,101,192'},${ .18 + i * .04})`,
-                    color: i <= 2 ? '#00E5B4' : '#6BA3FF',
-                  }}>{lv}</span>
-                  {i < arr.length - 1 && <ChevronRight size={12} color="rgba(255,255,255,0.18)" />}
-                </div>
-              ))}
-            </div>
-
-            <div className="role-bento">
-              {[
-                { Icon: Users,    role: 'Ciudadano', badge: 'Para ti',    color: '#00E5B4', rgb: '0,229,180',   wide: true,  features: ['Escanea residuos con IA', 'Consulta al EcoAsistente', 'Ve tu impacto personal', 'Retos semanales', 'Ranking de tu comunidad'] },
-                { Icon: Building2,role: 'Colegio',   badge: 'Institución',color: '#6BA3FF', rgb: '107,163,255', wide: false, features: ['Dashboard de aulas', 'QR de acceso', 'Ranking entre clases', 'Reportes descargables'] },
-                { Icon: Globe,    role: 'Municipio', badge: 'Admin local', color: '#6BA3FF', rgb: '107,163,255', wide: false, features: ['Mapa de puntos de acopio', 'Impacto del distrito', 'Campañas de reciclaje'] },
-              ].map(c => (
-                <div key={c.role} className={`role-card${c.wide ? ' role-card-wide' : ''}`}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
-                    <div className="icon-box" style={{ background: `rgba(${c.rgb},.1)`, border: `1px solid rgba(${c.rgb},.18)` }}>
-                      <c.Icon size={19} color={c.color} />
-                    </div>
-                    <span style={{ fontSize: 10, fontWeight: 700, padding: '4px 10px', borderRadius: 100, background: `rgba(${c.rgb},.1)`, color: c.color, letterSpacing: '.05em', textTransform: 'uppercase', flexShrink: 0 }}>{c.badge}</span>
-                  </div>
-
-                  <h3 className="display-font" style={{ fontSize: c.wide ? 28 : 20, fontWeight: 700, color: '#E6F4F1', marginBottom: 16, letterSpacing: '-.015em' }}>{c.role}</h3>
-
-                  {c.wide && (
-                    <p style={{ fontSize: 14, color: 'rgba(230,244,241,0.42)', lineHeight: 1.72, marginBottom: 16, maxWidth: 360 }}>
-                      El ciudadano es el núcleo de EcoRed. Cada escaneo suma impacto real a tu comunidad y al planeta.
-                    </p>
-                  )}
-
-                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: 9 }}>
-                    {c.features.map(f => (
-                      <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'rgba(230,244,241,.48)', fontWeight: 400 }}>
-                        <span className="feat-dot" style={{ background: c.color, boxShadow: `0 0 5px ${c.color}` }} />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Link href="/auth/register" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: c.wide ? 28 : 20, padding: '11px 16px', borderRadius: 100, background: `rgba(${c.rgb},.08)`, border: `1px solid rgba(${c.rgb},.16)`, color: c.color, fontSize: 13, fontWeight: 700, textDecoration: 'none', transition: 'all .28s ease' }}>
-                    Empezar <ArrowRight size={13} />
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <div className="divider-wrap"><hr className="divider" /></div>
-
-        {/* ── FEATURES — 2x2 asymmetric bento ── */}
-        <section className="sec-md">
-          <div className="wrap">
-            <div className="feature-bento">
-              <div className="feat-cell feat-cell-accent" style={{ padding: '32px' }}>
-                <div style={{ display: 'flex', gap: 10, marginBottom: 18 }}>
-                  <div className="icon-box" style={{ background: 'rgba(0,137,123,0.15)', border: '1px solid rgba(0,137,123,0.22)' }}>
-                    <Camera size={17} color="#00E5B4" />
-                  </div>
-                  <div className="icon-box" style={{ background: 'rgba(107,163,255,0.1)', border: '1px solid rgba(107,163,255,0.18)' }}>
-                    <MessageCircle size={17} color="#6BA3FF" />
-                  </div>
-                </div>
-                <h3 className="display-font" style={{ fontSize: 20, fontWeight: 700, color: '#E6F4F1', marginBottom: 8, letterSpacing: '-.01em' }}>Visión IA + Asistente</h3>
-                <p style={{ fontSize: 14, color: 'rgba(230,244,241,.42)', lineHeight: 1.7 }}>
-                  Llama 4 Scout Vision identifica cualquier residuo con una foto. El EcoAsistente conoce tu historial y responde en tiempo real.
-                </p>
-              </div>
-
-              <div className="feat-cell feat-cell-plain">
-                <div className="icon-box" style={{ background: 'rgba(0,137,123,0.1)', border: '1px solid rgba(0,137,123,0.16)', marginBottom: 14 }}>
-                  <MapPin size={17} color="#00E5B4" />
-                </div>
-                <h3 className="display-font" style={{ fontSize: 17, fontWeight: 700, color: '#E6F4F1', marginBottom: 6, letterSpacing: '-.01em' }}>Mapa de acopio</h3>
-                <p style={{ fontSize: 13, color: 'rgba(230,244,241,.38)', lineHeight: 1.65 }}>Puntos de reciclaje cerca de ti, actualizados por el municipio.</p>
-              </div>
-
-              <div className="feat-cell feat-cell-plain">
-                <div className="icon-box" style={{ background: 'rgba(21,101,192,0.1)', border: '1px solid rgba(21,101,192,0.18)', marginBottom: 14 }}>
-                  <BarChart3 size={17} color="#6BA3FF" />
-                </div>
-                <h3 className="display-font" style={{ fontSize: 17, fontWeight: 700, color: '#E6F4F1', marginBottom: 6, letterSpacing: '-.01em' }}>Rankings en vivo</h3>
-                <p style={{ fontSize: 13, color: 'rgba(230,244,241,.38)', lineHeight: 1.65 }}>Podio de aulas actualizado con cada escaneo. Competencia en tiempo real.</p>
-              </div>
-
-              <div className="feat-cell feat-cell-blue" style={{ padding: '32px' }}>
-                <div className="icon-box" style={{ background: 'rgba(107,163,255,0.12)', border: '1px solid rgba(107,163,255,0.2)', marginBottom: 18 }}>
-                  <Recycle size={17} color="#6BA3FF" />
-                </div>
-                <h3 className="display-font" style={{ fontSize: 20, fontWeight: 700, color: '#E6F4F1', marginBottom: 8, letterSpacing: '-.01em' }}>Impacto medible</h3>
-                <p style={{ fontSize: 14, color: 'rgba(230,244,241,.42)', lineHeight: 1.7 }}>
-                  CO₂ evitado, kg reciclados y EcoPuntos por cada acción. Datos reales, no estimaciones genéricas.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── IMPACT CTA — Double-Bezel ── */}
-        <section id="impacto" className="sec-end">
-          <div className="wrap">
-            <div className="dbezel-outer">
-              <div className="dbezel-inner">
-                <div style={{ position: 'absolute', top: -60, left: -60, width: 220, height: 220, borderRadius: '50%', background: 'radial-gradient(rgba(0,137,123,.32),transparent)', filter: 'blur(50px)', pointerEvents: 'none' }} />
-                <div style={{ position: 'absolute', bottom: -40, right: -40, width: 180, height: 180, borderRadius: '50%', background: 'radial-gradient(rgba(21,101,192,.28),transparent)', filter: 'blur(45px)', pointerEvents: 'none' }} />
-
-                <div style={{ position: 'relative', zIndex: 1 }}>
-                  <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(0,229,180,.1)', border: '1px solid rgba(0,229,180,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', boxShadow: '0 0 22px rgba(0,229,180,.12)' }}>
-                    <Leaf size={22} color="#00E5B4" />
-                  </div>
-
-                  <h2 className="display-font" style={{ fontSize: 'clamp(26px,5vw,52px)', fontWeight: 800, color: '#E6F4F1', letterSpacing: '-.03em', lineHeight: 1.1, marginBottom: 16 }}>
-                    El cambio empieza<br />en tu comunidad
-                  </h2>
-
-                  <p style={{ color: 'rgba(230,244,241,.48)', fontSize: 'clamp(14px,2vw,17px)', maxWidth: 400, margin: '0 auto 36px', lineHeight: 1.75 }}>
-                    Únete a EcoRed y convierte cada residuo en datos reales de impacto ambiental.
-                  </p>
-
-                  <div className="cta-btns">
-                    <Link href="/auth/register" className="btn-cta" style={{ fontSize: 15, padding: '13px 20px 13px 28px' }}>
-                      Crear cuenta gratuita
-                      <span className="btn-icon" style={{ width: 28, height: 28 }}><ArrowRight size={14} /></span>
-                    </Link>
-                    <Link href="/auth/login" className="btn-outline" style={{ fontSize: 15, padding: '13px 28px' }}>
-                      Ya tengo cuenta
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── FOOTER ── */}
-        <footer style={{ borderTop: '1px solid rgba(255,255,255,0.055)', padding: '24px 20px' }}>
-          <div className="wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 26, height: 26, borderRadius: 7, background: 'linear-gradient(135deg,#00897B,#005F57)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Leaf size={12} color="#fff" />
-              </div>
-              <span className="display-font" style={{ fontWeight: 700, color: '#E6F4F1', fontSize: 15 }}>EcoRed</span>
-              <span style={{ color: 'rgba(255,255,255,.18)', fontSize: 13 }}>Tu comunidad, más verde</span>
-            </div>
-            <span style={{ color: 'rgba(255,255,255,.14)', fontSize: 12 }}>QuipuSoft 2026 · Tecsup · Perú</span>
+          <div className="sg-foot-bottom">
+            <span>© EcoRed 2026. Todos los derechos reservados.</span>
+            <span>Hecho en Perú 🇵🇪 · Hackathon QuipuSoft 2026</span>
           </div>
         </footer>
-
       </div>
+
+      <Script id="landing-interactions" strategy="afterInteractive">{`
+        (function() {
+          var nav = document.getElementById('main-nav');
+          var ticking = false;
+          function updateNav() {
+            if (nav) {
+              if (window.scrollY > 24) nav.classList.add('scrolled');
+              else nav.classList.remove('scrolled');
+            }
+            ticking = false;
+          }
+          window.addEventListener('scroll', function() {
+            if (!ticking) { requestAnimationFrame(updateNav); ticking = true; }
+          }, { passive: true });
+          updateNav();
+
+          function initReveal() {
+            var els = document.querySelectorAll('.sr');
+            if (!els.length) return;
+            var io = new IntersectionObserver(function(entries) {
+              entries.forEach(function(e) {
+                if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+              });
+            }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+            els.forEach(function(el) { io.observe(el); });
+          }
+          requestAnimationFrame(function() { requestAnimationFrame(initReveal); });
+
+          /* Fallback: si el usuario volvió via back-navigation y los .sr
+             siguen invisibles (script no re-ejecutó el observer), revelarlos. */
+          setTimeout(function() {
+            document.querySelectorAll('.sr:not(.visible)').forEach(function(el) {
+              el.classList.add('visible');
+            });
+          }, 600);
+        })();
+      `}</Script>
     </>
   )
 }

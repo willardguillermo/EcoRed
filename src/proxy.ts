@@ -33,6 +33,13 @@ export async function proxy(request: NextRequest) {
   const isPublic = PUBLIC_ROUTES.some((route) => pathname === route)
 
   if (!user && !isPublic) {
+    // API routes devuelven JSON 401, no redirect HTML
+    if (pathname.startsWith("/api/")) {
+      return new NextResponse(JSON.stringify({ error: "No autenticado" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      })
+    }
     return NextResponse.redirect(new URL("/auth/login", request.url))
   }
 
@@ -44,5 +51,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon\\.ico|manifest\\.json|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 }

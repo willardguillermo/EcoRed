@@ -196,9 +196,22 @@ export async function POST(request: Request) {
   if (!user) return new Response("No autenticado", { status: 401 })
 
   try {
-    const { messages } = await request.json() as {
-      messages: { role: "user" | "assistant"; content: string }[]
-    }
+    const body = await request.json().catch(() => ({})) as Record<string, unknown>
+    const rawMessages = Array.isArray(body?.messages) ? body.messages : []
+
+    // Sanitize: only user/assistant roles, max 50 messages, max 2000 chars each
+    const messages = (rawMessages as unknown[])
+      .filter((m): m is { role: "user" | "assistant"; content: string } => {
+        if (typeof m !== "object" || m === null) return false
+        const msg = m as Record<string, unknown>
+        return (msg.role === "user" || msg.role === "assistant")
+          && typeof msg.content === "string"
+          && msg.content.length > 0
+      })
+      .slice(-50)
+      .map((m) => ({ role: m.role, content: m.content.slice(0, 2000) }))
+
+    if (!messages.length) return Response.json({ error: "Sin mensajes válidos" }, { status: 400 })
 
     const [profile, impact, scans] = await Promise.all([
       getProfile(user.id),

@@ -41,9 +41,15 @@ export async function POST(request: Request) {
   const file = form.get("image") as File | null
   if (!file) return Response.json({ error: "No se recibió imagen" }, { status: 400 })
 
+  const ALLOWED_MIME = ["image/jpeg", "image/png", "image/webp", "image/gif"]
+  if (!ALLOWED_MIME.includes(file.type))
+    return Response.json({ error: "Formato no permitido (jpeg/png/webp/gif)" }, { status: 400 })
+  if (file.size > 10 * 1024 * 1024)
+    return Response.json({ error: "Imagen demasiado grande (máx 10 MB)" }, { status: 400 })
+
   const bytes   = await file.arrayBuffer()
   const base64  = Buffer.from(bytes).toString("base64")
-  const dataUrl = `data:${file.type || "image/jpeg"};base64,${base64}`
+  const dataUrl = `data:${file.type};base64,${base64}`
 
   let parsed: {
     waste_category: WasteCategory
@@ -74,8 +80,10 @@ export async function POST(request: Request) {
     })
 
     const text  = completion.choices[0]?.message?.content ?? "{}"
-    const match = text.match(/\{[\s\S]*\}/)
-    parsed = JSON.parse(match ? match[0] : text)
+    const first = text.indexOf("{")
+    const last  = text.lastIndexOf("}")
+    const jsonStr = first !== -1 && last > first ? text.slice(first, last + 1) : text
+    parsed = JSON.parse(jsonStr)
   } catch {
     return Response.json({ error: "Error al analizar la imagen. Intenta con otra foto." }, { status: 500 })
   }
@@ -87,7 +95,10 @@ export async function POST(request: Request) {
       return Response.json({ error: "La IA no pudo clasificar el residuo. Intenta con otra foto." }, { status: 422 })
     }
   }
-  if (typeof parsed.recyclable !== "boolean") parsed.recyclable = Boolean(parsed.recyclable)
+  // Boolean("false") === true, so we need explicit string comparison
+  if (typeof parsed.recyclable !== "boolean") {
+    parsed.recyclable = String(parsed.recyclable).toLowerCase() === "true"
+  }
 
   const category = (CATEGORY_META[parsed.waste_category] ? parsed.waste_category : "other") as WasteCategory
   const meta     = CATEGORY_META[category]
@@ -114,7 +125,9 @@ export async function POST(request: Request) {
       material:       parsed.material,
       recyclable:     parsed.recyclable,
       instructions:   parsed.instructions,
-      confidence:     Math.min(parsed.confidence, 100) / 100,
+      confidence:     Number.isFinite(parsed.confidence)
+                        ? Math.min(Math.max(parsed.confidence, 0), 100) / 100
+                        : null,
       points_earned:  pointsEarned,
       image_url:      null,
     })
@@ -123,17 +136,18 @@ export async function POST(request: Request) {
 
   if (scanError) return Response.json({ error: scanError.message }, { status: 500 })
 
-  await adminSupabase.from("impact_logs").insert({
+  const { error: impactError } = await adminSupabase.from("impact_logs").insert({
     user_id:      user.id,
     org_id:       profile?.org_id ?? null,
     scan_id:      scan.id,
     co2_saved_kg: co2Saved,
     waste_kg:     wasteKg,
   })
+  if (impactError) console.error("[scan] impact_log insert failed:", impactError.message)
 
-  // Incremento atómico con RPC para evitar race condition en escaneos concurrentes
   if (pointsEarned > 0) {
-    await adminSupabase.rpc("increment_points", { uid: user.id, delta: pointsEarned })
+    const { error: pointsError } = await adminSupabase.rpc("increment_points", { uid: user.id, delta: pointsEarned })
+    if (pointsError) console.error("[scan] increment_points failed:", pointsError.message)
   }
 
   return Response.json({
