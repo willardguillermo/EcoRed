@@ -1,4 +1,13 @@
+import withPWAInit from "@ducanh2912/next-pwa"
 import type { NextConfig } from "next"
+
+const withPWA = withPWAInit({
+  dest: "public",
+  disable: process.env.NODE_ENV === "development",
+  workboxOptions: {
+    disableDevLogs: true,
+  },
+})
 
 const nextConfig: NextConfig = {
   images: {
@@ -7,8 +16,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.supabase.in" },
     ],
   },
-  // Compress responses for faster delivery on Vercel edge
   compress: true,
 }
 
-export default nextConfig
+export default withPWA(nextConfig)

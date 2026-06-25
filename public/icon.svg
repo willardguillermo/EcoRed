@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="110" fill="#00897B"/>
+  <!-- Leaf shape: top tip → right curve → bottom tip → left curve -->
+  <path d="M256,88 C395,88 440,235 256,440 C72,235 117,88 256,88 Z" fill="white"/>
+  <!-- Stem -->
+  <rect x="244" y="438" width="24" height="52" rx="12" fill="white"/>
+</svg>
