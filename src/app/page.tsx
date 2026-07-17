@@ -236,25 +236,198 @@ export default function LandingPage() {
         }
         .sg-btn-grn:hover { background: #006B61; }
 
-        /* Hero art */
-        .sg-art-wrap { margin-top: 56px; position: relative; width: min(540px, 90vw); }
-        .sg-art-frame {
-          border: 1px solid rgba(0,0,0,.08); border-radius: 8px;
-          background: #EEF9F5; overflow: hidden;
+        /* Hero product preview */
+        .sg-art-wrap {
+          margin-top: 54px;
+          width: min(720px, 92vw);
+          position: relative;
+        }
+        .sg-art-wrap::before {
+          content: "";
+          position: absolute; inset: 18px 42px -22px;
+          border-radius: 32px;
+          background: radial-gradient(ellipse at 50% 50%, rgba(0,137,123,.28), transparent 68%);
+          filter: blur(18px);
+          pointer-events: none;
+        }
+        .sg-product-preview {
+          position: relative;
+          overflow: hidden;
+          border-radius: 24px;
+          border: 1px solid rgba(0,137,123,.18);
+          background:
+            linear-gradient(rgba(0,137,123,.045) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,137,123,.045) 1px, transparent 1px),
+            linear-gradient(145deg, #FFFFFF 0%, #F2FBF8 100%);
+          background-size: 28px 28px, 28px 28px, auto;
+          box-shadow: 0 28px 70px rgba(0,72,63,.14), inset 0 1px 0 rgba(255,255,255,.9);
+          padding: 18px;
+          text-align: left;
+        }
+        .sg-product-preview::after {
+          content: "";
+          position: absolute; right: -80px; top: -120px;
+          width: 260px; height: 260px; border-radius: 50%;
+          background: rgba(0,137,123,.10);
+          pointer-events: none;
+        }
+        .sg-product-top {
+          display: flex; align-items: flex-start; justify-content: space-between; gap: 18px;
+          padding: 4px 4px 16px;
+          position: relative; z-index: 1;
+        }
+        .sg-product-kicker {
+          display: block;
+          font-size: 10px; font-weight: 800; letter-spacing: .1em;
+          text-transform: uppercase; color: #00897B;
+          margin-bottom: 5px;
+        }
+        .sg-product-top h2 {
+          font-size: 20px; font-weight: 800; color: #0A0A0A;
+          letter-spacing: -.02em; line-height: 1.1;
+        }
+        .sg-product-status {
+          display: inline-flex; align-items: center; gap: 8px;
+          padding: 7px 10px; border-radius: 999px;
+          background: #0A0A0A; color: #fff;
+          font-size: 11px; font-weight: 700;
+          white-space: nowrap;
+        }
+        .sg-product-status span {
+          width: 7px; height: 7px; border-radius: 50%;
+          background: #65D6C8; box-shadow: 0 0 0 4px rgba(101,214,200,.22);
+        }
+        .sg-product-grid {
+          display: grid; grid-template-columns: 1.1fr .9fr; gap: 14px;
+          position: relative; z-index: 1;
+        }
+        .sg-scan-card,
+        .sg-result-card,
+        .sg-mini-metrics > div,
+        .sg-check-row {
+          border: 1px solid rgba(0,0,0,.08);
+          background: rgba(255,255,255,.78);
+          box-shadow: 0 10px 28px rgba(0,50,45,.06);
+        }
+        .sg-scan-card {
+          border-radius: 20px;
+          padding: 14px;
+        }
+        .sg-scan-frame {
+          position: relative;
+          min-height: 230px;
+          border-radius: 16px;
+          overflow: hidden;
           display: flex; align-items: center; justify-content: center;
-          padding: 28px 20px 28px;
+          background:
+            radial-gradient(circle at 50% 50%, rgba(0,137,123,.18), transparent 45%),
+            linear-gradient(145deg, #E7F8F4, #F7FFFC);
         }
-        .sg-corner {
-          position: absolute; width: 18px; height: 18px;
-          border-color: rgba(0,137,123,.5); border-style: solid; z-index: 2;
+        .sg-scan-frame::before {
+          content: "";
+          position: absolute; inset: 28px;
+          border-radius: 18px;
+          border: 1px dashed rgba(0,137,123,.24);
         }
-        .sg-tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
-        .sg-tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
-        .sg-bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
-        .sg-br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
-        .sg-art-caption {
-          margin-top: 14px; text-align: center;
-          font-size: 11px; color: #B0B0B0; letter-spacing: .04em;
+        .sg-scan-corner {
+          position: absolute; width: 28px; height: 28px;
+          border-color: #00897B; border-style: solid; opacity: .75;
+        }
+        .sg-scan-tl { top: 18px; left: 18px; border-width: 2px 0 0 2px; }
+        .sg-scan-tr { top: 18px; right: 18px; border-width: 2px 2px 0 0; }
+        .sg-scan-bl { bottom: 18px; left: 18px; border-width: 0 0 2px 2px; }
+        .sg-scan-br { bottom: 18px; right: 18px; border-width: 0 2px 2px 0; }
+        .sg-bottle {
+          position: relative;
+          width: 86px; height: 160px;
+          transform: rotate(-8deg);
+          filter: drop-shadow(0 18px 18px rgba(0,75,67,.18));
+        }
+        .sg-bottle-cap {
+          position: absolute; top: 0; left: 31px;
+          width: 24px; height: 14px; border-radius: 6px 6px 3px 3px;
+          background: #1565C0;
+        }
+        .sg-bottle-neck {
+          position: absolute; top: 12px; left: 27px;
+          width: 32px; height: 34px; border-radius: 10px 10px 4px 4px;
+          background: linear-gradient(90deg, rgba(21,101,192,.22), rgba(255,255,255,.72), rgba(0,137,123,.18));
+          border: 1px solid rgba(0,137,123,.25);
+        }
+        .sg-bottle-body {
+          position: absolute; top: 40px; left: 10px;
+          width: 66px; height: 112px; border-radius: 24px 24px 18px 18px;
+          background: linear-gradient(100deg, rgba(21,101,192,.18), rgba(255,255,255,.8) 46%, rgba(0,137,123,.22));
+          border: 1px solid rgba(0,137,123,.30);
+          overflow: hidden;
+        }
+        .sg-bottle-body span {
+          position: absolute; left: 11px; right: 11px; top: 42px;
+          height: 24px; border-radius: 8px;
+          background: rgba(0,137,123,.72);
+        }
+        .sg-scan-action {
+          margin-top: 12px;
+          display: flex; align-items: center; justify-content: center; gap: 8px;
+          height: 34px; border-radius: 999px;
+          background: #0A0A0A; color: #fff;
+          font-size: 12px; font-weight: 700;
+        }
+        .sg-scan-action svg { width: 15px; height: 15px; }
+        .sg-result-stack {
+          display: flex; flex-direction: column; gap: 12px;
+        }
+        .sg-result-card {
+          border-radius: 18px;
+          padding: 16px;
+          display: flex; gap: 13px; align-items: center;
+        }
+        .sg-result-icon {
+          width: 40px; height: 40px; border-radius: 12px;
+          display: flex; align-items: center; justify-content: center;
+          background: #E0F2F1; color: #00897B;
+          flex-shrink: 0;
+        }
+        .sg-result-icon svg { width: 20px; height: 20px; }
+        .sg-result-card span {
+          display: block; font-size: 11px; color: #7A8783; margin-bottom: 3px;
+        }
+        .sg-result-card strong {
+          display: block; font-size: 16px; color: #0A0A0A;
+        }
+        .sg-mini-metrics {
+          display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        }
+        .sg-mini-metrics > div {
+          border-radius: 16px; padding: 14px;
+        }
+        .sg-mini-metrics strong {
+          display: block; color: #00897B; font-size: 22px; line-height: 1;
+          font-variant-numeric: tabular-nums;
+        }
+        .sg-mini-metrics span {
+          display: block; margin-top: 6px; color: #6B6B6B; font-size: 11px;
+        }
+        .sg-check-row {
+          border-radius: 16px; padding: 14px;
+          display: flex; align-items: flex-start; gap: 10px;
+          color: #3D3D3D; font-size: 12px; line-height: 1.45;
+        }
+        .sg-check-row svg { width: 17px; height: 17px; color: #00897B; flex-shrink: 0; margin-top: 1px; }
+        .sg-product-bottom {
+          position: relative; z-index: 1;
+          margin-top: 14px; padding: 13px 4px 2px;
+          display: flex; align-items: center; justify-content: space-between; gap: 12px;
+          color: #6B6B6B; font-size: 12px;
+        }
+        .sg-product-bottom span {
+          display: inline-flex; align-items: center; gap: 8px;
+        }
+        .sg-product-bottom svg { width: 16px; height: 16px; color: #00897B; }
+        .sg-product-chip {
+          padding: 5px 9px; border-radius: 999px;
+          background: #E0F2F1; color: #00897B !important;
+          font-weight: 800; white-space: nowrap;
         }
 
         /* MARQUEE */
@@ -681,6 +854,13 @@ export default function LandingPage() {
           .sg-nav { padding: 16px 20px; }
           .sg-nav-links li:not(:last-child) { display: none; }
           .sg-hero { padding: 100px 24px 60px; }
+          .sg-art-wrap { margin-top: 40px; width: min(620px, 100%); }
+          .sg-product-preview { padding: 14px; border-radius: 20px; }
+          .sg-product-grid { grid-template-columns: 1fr; }
+          .sg-scan-frame { min-height: 190px; }
+          .sg-result-stack { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+          .sg-result-main { grid-column: 1 / -1; }
+          .sg-product-bottom { align-items: flex-start; flex-direction: column; }
           .sg-section, .sg-tiers { padding: 52px 24px; }
           .sg-marquee-head { padding: 14px 24px 12px; align-items: flex-start; flex-direction: column; gap: 6px; }
           .sg-marquee-note { text-align: left; }
@@ -727,6 +907,19 @@ export default function LandingPage() {
         }
 
         @media (max-width: 430px) {
+          .sg-hero { padding: 92px 16px 48px; }
+          .sg-art-wrap { margin-top: 34px; }
+          .sg-product-top { flex-direction: column; gap: 10px; padding-bottom: 12px; }
+          .sg-product-status { align-self: flex-start; }
+          .sg-scan-card { padding: 10px; border-radius: 17px; }
+          .sg-scan-frame { min-height: 164px; border-radius: 14px; }
+          .sg-bottle { width: 70px; height: 132px; transform: rotate(-7deg) scale(.9); }
+          .sg-scan-action { height: 32px; font-size: 11px; }
+          .sg-result-stack { grid-template-columns: 1fr; }
+          .sg-result-card { padding: 13px; }
+          .sg-mini-metrics > div { padding: 12px; }
+          .sg-mini-metrics strong { font-size: 19px; }
+          .sg-check-row { padding: 12px; }
           .sg-section { padding: 44px 16px 52px; }
           .sg-dark { padding: 42px 16px 48px; }
           .sg-dark-proof { grid-template-columns: 1fr; }
@@ -772,14 +965,7 @@ export default function LandingPage() {
         </div>
 
         <div className="sg-art-wrap hero-anim ha-5">
-          <span className="sg-corner sg-tl" />
-          <span className="sg-corner sg-tr" />
-          <span className="sg-corner sg-bl" />
-          <span className="sg-corner sg-br" />
-          <div className="sg-art-frame">
-            <PixelLeaf />
-          </div>
-          <p className="sg-art-caption">EcoRed · Clasificación de residuos con IA · Perú 2026</p>
+          <HeroProductPreview />
         </div>
       </section>
 
@@ -1022,5 +1208,80 @@ export default function LandingPage() {
 
       <LandingInteractions />
     </>
+  )
+}
+
+function HeroProductPreview() {
+  return (
+    <div className="sg-product-preview" aria-label="Vista previa del escáner EcoRed">
+      <div className="sg-product-top">
+        <div>
+          <span className="sg-product-kicker">Escaneo en vivo</span>
+          <h2>Botella PET detectada</h2>
+        </div>
+        <span className="sg-product-status">
+          <span />
+          IA activa
+        </span>
+      </div>
+
+      <div className="sg-product-grid">
+        <div className="sg-scan-card">
+          <div className="sg-scan-frame">
+            <span className="sg-scan-corner sg-scan-tl" />
+            <span className="sg-scan-corner sg-scan-tr" />
+            <span className="sg-scan-corner sg-scan-bl" />
+            <span className="sg-scan-corner sg-scan-br" />
+            <div className="sg-bottle">
+              <span className="sg-bottle-cap" />
+              <span className="sg-bottle-neck" />
+              <span className="sg-bottle-body">
+                <span />
+              </span>
+            </div>
+          </div>
+          <div className="sg-scan-action">
+            <Camera />
+            Analizando material
+          </div>
+        </div>
+
+        <div className="sg-result-stack">
+          <div className="sg-result-card sg-result-main">
+            <div className="sg-result-icon">
+              <Recycle />
+            </div>
+            <div>
+              <span>Material</span>
+              <strong>Plástico PET #1</strong>
+            </div>
+          </div>
+
+          <div className="sg-mini-metrics">
+            <div>
+              <strong>+15</strong>
+              <span>EcoPuntos</span>
+            </div>
+            <div>
+              <strong>0.50kg</strong>
+              <span>CO₂ evitado</span>
+            </div>
+          </div>
+
+          <div className="sg-check-row">
+            <CheckCircle2 />
+            Enjuagar, aplastar y llevar a punto de acopio.
+          </div>
+        </div>
+      </div>
+
+      <div className="sg-product-bottom">
+        <span>
+          <BarChart3 />
+          Impacto guardado en el ranking comunitario
+        </span>
+        <span className="sg-product-chip">Perú 2026</span>
+      </div>
+    </div>
   )
 }
