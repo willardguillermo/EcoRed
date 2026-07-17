@@ -141,10 +141,13 @@ export default async function DashboardPage() {
           {challenge ? (
             <div style={{
               borderRadius: 20,
-              background: 'linear-gradient(135deg, #00897B 0%, #005F57 100%)',
+              background: 'linear-gradient(135deg, rgba(0,137,123,0.92) 0%, rgba(0,95,87,0.9) 100%)',
               padding: '20px',
               position: 'relative', overflow: 'hidden',
-              boxShadow: '0 6px 20px rgba(0,137,123,0.25)',
+              border: '1px solid rgba(255,255,255,0.24)',
+              boxShadow: '0 18px 48px rgba(0,137,123,0.22), inset 0 1px 0 rgba(255,255,255,0.22)',
+              backdropFilter: 'blur(18px) saturate(145%)',
+              WebkitBackdropFilter: 'blur(18px) saturate(145%)',
             }}>
               <div style={{ position: 'absolute', top: -40, right: -40, width: 140, height: 140, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
               <div style={{ position: 'absolute', bottom: -24, left: -24, width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
@@ -188,7 +191,10 @@ export default async function DashboardPage() {
           ) : (
             <div style={{
               borderRadius: 20, border: '1px dashed rgba(0,0,0,0.11)',
-              background: '#FAFAFA', padding: '28px', textAlign: 'center',
+              background: 'rgba(255,255,255,0.48)', padding: '28px', textAlign: 'center',
+              backdropFilter: 'blur(18px) saturate(140%)',
+              WebkitBackdropFilter: 'blur(18px) saturate(140%)',
+              boxShadow: '0 16px 42px rgba(0,65,58,0.08)',
             }}>
               <Trophy className="h-8 w-8 mx-auto mb-2" style={{ color: 'rgba(0,0,0,0.13)' }} />
               <p style={{ fontSize: 14, color: 'rgba(26,26,46,0.4)' }}>
@@ -237,7 +243,10 @@ export default async function DashboardPage() {
           {scans.length === 0 ? (
             <div style={{
               borderRadius: 20, border: '1px dashed rgba(0,0,0,0.11)',
-              background: '#FAFAFA', padding: '36px', textAlign: 'center',
+              background: 'rgba(255,255,255,0.48)', padding: '36px', textAlign: 'center',
+              backdropFilter: 'blur(18px) saturate(140%)',
+              WebkitBackdropFilter: 'blur(18px) saturate(140%)',
+              boxShadow: '0 16px 42px rgba(0,65,58,0.08)',
             }}>
               <Camera className="h-10 w-10 mx-auto mb-3" style={{ color: 'rgba(0,0,0,0.11)' }} />
               <p style={{ fontSize: 14, fontWeight: 600, color: '#1A1A2E', marginBottom: 4 }}>Aún no has reciclado</p>
@@ -246,7 +255,15 @@ export default async function DashboardPage() {
               </p>
             </div>
           ) : (
-            <div style={{ borderRadius: 20, border: '1px solid rgba(0,0,0,0.07)', background: '#fff', overflow: 'hidden' }}>
+            <div style={{
+              borderRadius: 20,
+              border: '1px solid rgba(255,255,255,0.66)',
+              background: 'rgba(255,255,255,0.68)',
+              overflow: 'hidden',
+              boxShadow: '0 18px 52px rgba(0,65,58,0.10), inset 0 1px 0 rgba(255,255,255,0.72)',
+              backdropFilter: 'blur(20px) saturate(145%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(145%)',
+            }}>
               {scans.map((scan, i) => {
                 const catColor = CATEGORY_COLORS[scan.waste_category as WasteCategory] ?? '#00897B'
                 return (
@@ -304,16 +321,20 @@ function MetricCard({ icon, value, label, sublabel, rgb, accent }: {
   return (
     <div style={{
       borderRadius: 18,
-      background: `linear-gradient(145deg, rgba(${rgb},0.08) 0%, rgba(${rgb},0.02) 100%)`,
-      border: `1px solid rgba(${rgb},0.14)`,
+      background: `linear-gradient(145deg, rgba(255,255,255,0.72) 0%, rgba(${rgb},0.08) 100%)`,
+      border: `1px solid rgba(255,255,255,0.66)`,
       padding: '14px 12px',
       display: 'flex', flexDirection: 'column', gap: 10,
       position: 'relative', overflow: 'hidden',
+      boxShadow: `0 16px 38px rgba(${rgb},0.09), inset 0 1px 0 rgba(255,255,255,0.72)`,
+      backdropFilter: 'blur(18px) saturate(145%)',
+      WebkitBackdropFilter: 'blur(18px) saturate(145%)',
     }}>
       <div style={{
         width: 34, height: 34, borderRadius: 9, flexShrink: 0,
-        background: `rgba(${rgb},0.1)`,
-        border: `1px solid rgba(${rgb},0.15)`,
+        background: `rgba(${rgb},0.12)`,
+        border: `1px solid rgba(${rgb},0.18)`,
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.55)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
         {icon}

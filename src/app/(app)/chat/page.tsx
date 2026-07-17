@@ -141,9 +141,11 @@ export default function ChatPage() {
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '12px 16px',
-          borderBottom: '1px solid rgba(0,0,0,0.07)',
-          background: 'rgba(255,255,255,0.97)',
-          backdropFilter: 'blur(12px)',
+          borderBottom: '1px solid rgba(255,255,255,0.62)',
+          background: 'rgba(255,255,255,0.62)',
+          backdropFilter: 'blur(22px) saturate(150%)',
+          WebkitBackdropFilter: 'blur(22px) saturate(150%)',
+          boxShadow: '0 14px 38px rgba(0,65,58,0.08)',
           flexShrink: 0,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -180,13 +182,16 @@ export default function ChatPage() {
         </div>
 
         {/* ── Mensajes ── */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: 12, background: '#F7F8FA' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: 12, background: 'transparent' }}>
           {messages.length === 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', textAlign: 'center', gap: 20, paddingBottom: 32 }}>
               <div className="icon-glow" style={{
                 width: 68, height: 68, borderRadius: 20,
-                background: 'linear-gradient(145deg, rgba(0,137,123,0.1), rgba(0,137,123,0.04))',
-                border: '1px solid rgba(0,137,123,0.18)',
+                background: 'linear-gradient(145deg, rgba(255,255,255,0.78), rgba(224,242,241,0.42))',
+                border: '1px solid rgba(255,255,255,0.68)',
+                backdropFilter: 'blur(18px) saturate(145%)',
+                WebkitBackdropFilter: 'blur(18px) saturate(145%)',
+                boxShadow: '0 18px 48px rgba(0,65,58,0.10), inset 0 1px 0 rgba(255,255,255,0.7)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <Leaf className="h-8 w-8 text-[#00897B]" />
@@ -208,11 +213,13 @@ export default function ChatPage() {
                     style={{
                       textAlign: 'left', fontSize: 13, padding: '10px 14px',
                       borderRadius: 12, cursor: 'pointer',
-                      border: '1px solid rgba(0,0,0,0.09)',
-                      background: '#fff',
+                      border: '1px solid rgba(255,255,255,0.66)',
+                      background: 'rgba(255,255,255,0.66)',
                       color: '#1A1A2E', fontWeight: 400,
                       transition: 'all 0.18s ease',
-                      boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+                      boxShadow: '0 12px 30px rgba(0,65,58,0.08), inset 0 1px 0 rgba(255,255,255,0.7)',
+                      backdropFilter: 'blur(16px) saturate(140%)',
+                      WebkitBackdropFilter: 'blur(16px) saturate(140%)',
                     }}
                   >
                     {s}
@@ -247,12 +254,14 @@ export default function ChatPage() {
                       fontSize: 14, lineHeight: 1.65,
                       background: isUser
                         ? 'linear-gradient(135deg, #00897B 0%, #006B61 100%)'
-                        : '#ffffff',
+                        : 'rgba(255,255,255,0.72)',
                       color: isUser ? '#ffffff' : '#1A1A2E',
-                      border: isUser ? 'none' : '1px solid rgba(0,0,0,0.08)',
+                      border: isUser ? '1px solid rgba(255,255,255,0.18)' : '1px solid rgba(255,255,255,0.66)',
                       boxShadow: isUser
                         ? '0 3px 10px rgba(0,137,123,0.28)'
-                        : '0 1px 4px rgba(0,0,0,0.06)',
+                        : '0 14px 34px rgba(0,65,58,0.08), inset 0 1px 0 rgba(255,255,255,0.72)',
+                      backdropFilter: isUser ? undefined : 'blur(18px) saturate(140%)',
+                      WebkitBackdropFilter: isUser ? undefined : 'blur(18px) saturate(140%)',
                     }}>
                       {msg.content === "" && !isUser ? (
                         <div style={{ display: 'flex', gap: 4, alignItems: 'center', height: 20 }}>
@@ -274,9 +283,11 @@ export default function ChatPage() {
 
         {/* ── Input ── */}
         <div style={{
-          borderTop: '1px solid rgba(0,0,0,0.07)',
-          background: 'rgba(255,255,255,0.97)',
-          backdropFilter: 'blur(12px)',
+          borderTop: '1px solid rgba(255,255,255,0.62)',
+          background: 'rgba(255,255,255,0.62)',
+          backdropFilter: 'blur(22px) saturate(150%)',
+          WebkitBackdropFilter: 'blur(22px) saturate(150%)',
+          boxShadow: '0 -14px 38px rgba(0,65,58,0.08)',
           padding: '12px 16px 16px',
           flexShrink: 0,
         }}>
@@ -294,12 +305,14 @@ export default function ChatPage() {
               disabled={streaming}
               style={{
                 flex: 1, resize: 'none', fontSize: 14, lineHeight: '1.5',
-                borderRadius: 12, border: '1px solid rgba(0,0,0,0.1)',
-                background: '#F4F5F7', padding: '10px 14px',
+                borderRadius: 12, border: '1px solid rgba(255,255,255,0.68)',
+                background: 'rgba(255,255,255,0.58)', padding: '10px 14px',
                 color: '#1A1A2E', outline: 'none',
                 maxHeight: 128, overflowY: 'auto',
                 transition: 'border-color 0.18s ease',
                 opacity: streaming ? 0.6 : 1,
+                backdropFilter: 'blur(16px) saturate(135%)',
+                WebkitBackdropFilter: 'blur(16px) saturate(135%)',
               }}
               className="focus:border-[#00897B]/40 focus:!bg-white"
             />

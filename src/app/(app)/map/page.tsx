@@ -67,7 +67,7 @@ export default async function MapPage() {
   return (
     <div className="flex flex-col h-full max-h-[calc(100vh-3.5rem)] md:max-h-screen">
       {/* Header */}
-      <div className="shrink-0 px-4 py-3 border-b border-border bg-white flex items-center justify-between">
+      <div className="glass-card shrink-0 px-4 py-3 border-b border-border flex items-center justify-between">
         <div>
           <h1 className="text-base font-bold text-[#1A1A2E]">Puntos de acopio</h1>
           <p className="text-xs text-muted-foreground">

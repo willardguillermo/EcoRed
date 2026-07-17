@@ -129,7 +129,7 @@ export function RecyclingMap({ points }: Props) {
             "pointer-events-auto px-3 py-1 rounded-full text-xs font-semibold shadow transition-colors",
             !filter
               ? "bg-[#00897B] text-white"
-              : "bg-white text-muted-foreground hover:bg-muted"
+              : "glass-card text-muted-foreground hover:bg-white/70"
           )}
         >
           Todos
@@ -142,7 +142,7 @@ export function RecyclingMap({ points }: Props) {
               "pointer-events-auto px-3 py-1 rounded-full text-xs font-semibold shadow transition-colors",
               filter === cat
                 ? "text-white"
-                : "bg-white text-muted-foreground hover:bg-muted"
+                : "glass-card text-muted-foreground hover:bg-white/70"
             )}
             style={filter === cat ? { backgroundColor: MATERIAL_COLORS[cat] } : {}}
           >
@@ -157,7 +157,7 @@ export function RecyclingMap({ points }: Props) {
       {/* Locate me button */}
       <button
         onClick={locateUser}
-        className="absolute bottom-24 right-3 z-[1000] h-10 w-10 rounded-xl bg-white shadow-md flex items-center justify-center hover:bg-muted transition-colors"
+        className="glass-card absolute bottom-24 right-3 z-[1000] h-10 w-10 rounded-xl shadow-md flex items-center justify-center hover:bg-white/70 transition-colors"
         title="Mi ubicación"
       >
         <Navigation className="h-4 w-4 text-[#00897B]" />

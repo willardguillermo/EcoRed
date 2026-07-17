@@ -8,7 +8,7 @@ export default async function ScanPage() {
   if (!user) redirect("/auth/login")
 
   return (
-    <div className="min-h-full bg-[#F5F5F5]">
+    <div className="min-h-full">
       <ScanCamera />
     </div>
   )
