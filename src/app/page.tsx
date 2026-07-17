@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Leaf } from "lucide-react"
+import { BarChart3, Camera, CheckCircle2, Leaf, MapPinned, Recycle, Sparkles, UsersRound } from "lucide-react"
 import { LandingInteractions } from "@/components/landing/LandingInteractions"
 
 // ── Pixel-art leaf — deterministic noise, SSR-safe ───────────────────────────
@@ -127,6 +127,33 @@ const CTA_ITEMS = [
   "Reportes de impacto ambiental en tiempo real",
 ]
 
+const FLOW_STEPS = [
+  {
+    label: "01",
+    title: "Escaneo IA",
+    desc: "El ciudadano toma una foto y EcoRed identifica material, preparación y reciclabilidad.",
+    icon: Camera,
+  },
+  {
+    label: "02",
+    title: "Comunidad",
+    desc: "Cada acción suma EcoPuntos al perfil, aula, colegio o municipio.",
+    icon: UsersRound,
+  },
+  {
+    label: "03",
+    title: "Gestión",
+    desc: "La institución ve rankings, retos y reportes listos para tomar decisiones.",
+    icon: BarChart3,
+  },
+]
+
+const FLOW_METRICS = [
+  { value: "4.8s", label: "clasificación promedio" },
+  { value: "7", label: "categorías de residuo" },
+  { value: "100%", label: "impacto trazable" },
+]
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 export default function LandingPage() {
   return (
@@ -235,16 +262,27 @@ export default function LandingPage() {
           border-top: 1px solid rgba(0,0,0,.07);
           border-bottom: 1px solid rgba(0,0,0,.07);
           overflow: hidden;
+          background: #F4F8F6;
+        }
+        .sg-marquee-head {
+          max-width: 1120px; margin: 0 auto;
+          padding: 16px 48px 13px;
+          display: flex; align-items: center; justify-content: space-between; gap: 24px;
+          border-bottom: 1px solid rgba(0,0,0,.06);
         }
         .sg-marquee-label {
-          text-align: center; font-size: 11px; font-weight: 500;
-          letter-spacing: .08em; color: #B0B0B0; text-transform: uppercase;
-          padding: 14px 0; border-bottom: 1px solid rgba(0,0,0,.05);
+          font-size: 10px; font-weight: 800;
+          letter-spacing: .11em; color: #00897B; text-transform: uppercase;
+          white-space: nowrap;
         }
-        .sg-marquee-row { padding: 14px 0; }
+        .sg-marquee-note {
+          font-size: 13px; color: #62726E; text-align: right;
+          max-width: 420px; line-height: 1.45;
+        }
+        .sg-marquee-row { padding: 12px 0; }
         .sg-marquee-track {
           display: flex; width: max-content;
-          animation: sgMarq 26s linear infinite;
+          animation: sgMarq 34s linear infinite;
         }
         @keyframes sgMarq {
           from { transform: translateX(0); }
@@ -252,8 +290,8 @@ export default function LandingPage() {
         }
         .sg-marquee-item {
           display: inline-flex; align-items: center; gap: 8px;
-          font-size: 13px; font-weight: 500; color: #B0B0B0;
-          white-space: nowrap; padding: 0 28px;
+          font-size: 13px; font-weight: 700; color: #7A8783;
+          white-space: nowrap; padding: 0 26px;
         }
         .sg-marquee-item::before {
           content: ''; width: 5px; height: 5px; border-radius: 50%;
@@ -262,42 +300,152 @@ export default function LandingPage() {
 
         /* DARK SECTION */
         .sg-dark {
-          background: #0A0A0A; color: #FAFAF8;
-          min-height: 68vh;
-          display: flex; flex-direction: column;
-          align-items: center; justify-content: center;
-          text-align: center; padding: 80px 48px;
+          background:
+            linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px),
+            linear-gradient(180deg, #0C1412 0%, #08100E 100%);
+          background-size: 44px 44px, 44px 44px, auto;
+          color: #FAFAF8;
+          padding: 96px 48px 104px;
           position: relative; overflow: hidden;
         }
-        .sg-dark-glow {
-          position: absolute; bottom: -80px; left: 50%;
-          transform: translateX(-50%); width: 800px; height: 500px;
-          background: radial-gradient(ellipse at 50% 100%, rgba(0,137,123,.28), transparent 72%);
-          pointer-events: none;
+        .sg-dark::before {
+          content: ""; position: absolute; inset: 0;
+          background-image: linear-gradient(120deg, rgba(0,137,123,.13), transparent 42%, rgba(21,101,192,.10));
+          opacity: .7; pointer-events: none;
         }
+        .sg-dark-shell {
+          position: relative; z-index: 1;
+          max-width: 1120px; margin: 0 auto;
+          display: grid; grid-template-columns: .86fr 1.14fr; gap: 56px;
+          align-items: center;
+        }
+        .sg-dark-copy { text-align: left; }
+        .sg-dark-kicker {
+          display: inline-flex; align-items: center; gap: 8px;
+          margin-bottom: 20px;
+          font-size: 11px; font-weight: 800; letter-spacing: .1em;
+          text-transform: uppercase; color: #81D8CA;
+        }
+        .sg-dark-kicker svg { width: 15px; height: 15px; }
         .sg-dark h2 {
           font-family: 'DM Serif Display', serif;
-          font-size: clamp(32px, 5vw, 62px);
+          font-size: clamp(38px, 5vw, 72px);
           font-weight: 400; letter-spacing: -.03em; line-height: 1.05;
-          max-width: 660px; margin-bottom: 20px; position: relative; z-index: 2;
+          max-width: 560px; margin-bottom: 20px;
+          text-wrap: balance;
         }
-        .sg-dark > p {
-          font-size: 15px; color: rgba(255,255,255,.45);
-          max-width: 400px; line-height: 1.7;
-          position: relative; z-index: 2;
+        .sg-dark-copy > p {
+          font-size: 16px; color: rgba(255,255,255,.66);
+          max-width: 500px; line-height: 1.75;
+          text-wrap: pretty;
         }
-        .sg-dark-visual {
-          position: relative; z-index: 2; margin-top: 52px;
-          display: flex; align-items: center; justify-content: center; gap: 20px;
+        .sg-dark-proof {
+          display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 10px; margin-top: 32px; max-width: 520px;
         }
-        .sg-hand {
-          font-size: 80px; opacity: .18; filter: grayscale(1);
-          line-height: 1;
+        .sg-dark-proof-item {
+          border: 1px solid rgba(255,255,255,.10);
+          background: rgba(255,255,255,.045);
+          padding: 14px 13px; border-radius: 12px;
         }
-        .sg-spark {
-          font-size: 44px; line-height: 1;
-          filter: drop-shadow(0 0 28px rgba(0,196,161,.9));
-          opacity: .95;
+        .sg-dark-proof-value {
+          display: block; color: #C8FFF6; font-size: 22px;
+          font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums;
+        }
+        .sg-dark-proof-label {
+          display: block; margin-top: 4px; color: rgba(255,255,255,.45);
+          font-size: 11px; line-height: 1.35;
+        }
+        .sg-flow-panel {
+          border: 1px solid rgba(255,255,255,.12);
+          background: rgba(8,19,17,.78);
+          box-shadow: 0 28px 80px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.08);
+          border-radius: 22px;
+          padding: 22px;
+          backdrop-filter: blur(18px);
+        }
+        .sg-flow-top {
+          display: flex; align-items: center; justify-content: space-between; gap: 16px;
+          padding-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,.10);
+        }
+        .sg-flow-status {
+          display: inline-flex; align-items: center; gap: 8px;
+          color: #C8FFF6; font-size: 12px; font-weight: 800;
+          letter-spacing: .08em; text-transform: uppercase;
+        }
+        .sg-flow-status-dot {
+          width: 8px; height: 8px; border-radius: 50%;
+          background: #65D6C8; box-shadow: 0 0 0 5px rgba(101,214,200,.12);
+        }
+        .sg-flow-place {
+          display: flex; align-items: center; gap: 8px;
+          color: rgba(255,255,255,.48); font-size: 12px;
+        }
+        .sg-flow-place svg { width: 15px; height: 15px; color: #65D6C8; }
+        .sg-flow-steps {
+          display: grid; gap: 12px; padding: 18px 0;
+        }
+        .sg-flow-step {
+          display: grid; grid-template-columns: auto 1fr auto; gap: 14px;
+          align-items: center;
+          padding: 15px;
+          border-radius: 16px;
+          background: rgba(255,255,255,.055);
+          border: 1px solid rgba(255,255,255,.075);
+        }
+        .sg-flow-icon {
+          width: 40px; height: 40px; border-radius: 12px;
+          display: flex; align-items: center; justify-content: center;
+          background: rgba(101,214,200,.12); color: #A7FFF2;
+        }
+        .sg-flow-icon svg { width: 20px; height: 20px; }
+        .sg-flow-step h3 {
+          margin: 0 0 3px; color: #FFFFFF;
+          font-size: 15px; font-weight: 800; letter-spacing: -.01em;
+        }
+        .sg-flow-step p {
+          margin: 0; color: rgba(255,255,255,.52);
+          font-size: 13px; line-height: 1.45;
+        }
+        .sg-flow-label {
+          color: rgba(255,255,255,.28);
+          font-family: var(--font-geist-mono), monospace;
+          font-size: 12px; font-weight: 700;
+        }
+        .sg-flow-bottom {
+          display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+          padding-top: 16px; border-top: 1px solid rgba(255,255,255,.10);
+        }
+        .sg-flow-result {
+          min-height: 132px;
+          border-radius: 18px;
+          padding: 18px;
+          background: linear-gradient(145deg, rgba(0,137,123,.22), rgba(21,101,192,.10));
+          border: 1px solid rgba(129,216,202,.18);
+          display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .sg-flow-result svg { width: 24px; height: 24px; color: #C8FFF6; }
+        .sg-flow-result strong {
+          display: block; color: #FFFFFF; font-size: 20px; line-height: 1.05;
+          letter-spacing: -.02em;
+        }
+        .sg-flow-result span {
+          display: block; margin-top: 6px; color: rgba(255,255,255,.52);
+          font-size: 12px; line-height: 1.45;
+        }
+        .sg-flow-checks {
+          border-radius: 18px;
+          padding: 18px;
+          background: rgba(255,255,255,.045);
+          border: 1px solid rgba(255,255,255,.075);
+          display: flex; flex-direction: column; gap: 12px;
+        }
+        .sg-flow-check {
+          display: flex; align-items: center; gap: 9px;
+          color: rgba(255,255,255,.66); font-size: 12px;
+        }
+        .sg-flow-check svg { width: 15px; height: 15px; color: #81D8CA; flex-shrink: 0; }
         }
 
         /* FEATURES */
@@ -527,7 +675,12 @@ export default function LandingPage() {
           .sg-nav-links li:not(:last-child) { display: none; }
           .sg-hero { padding: 100px 24px 60px; }
           .sg-section, .sg-tiers { padding: 60px 24px; }
-          .sg-dark { padding: 60px 24px; }
+          .sg-marquee-head { padding: 14px 24px 12px; align-items: flex-start; flex-direction: column; gap: 6px; }
+          .sg-marquee-note { text-align: left; }
+          .sg-dark { padding: 64px 24px 72px; }
+          .sg-dark-shell { grid-template-columns: 1fr; gap: 36px; }
+          .sg-dark-proof { grid-template-columns: 1fr; }
+          .sg-flow-bottom { grid-template-columns: 1fr; }
           .sg-grid-2 { grid-template-columns: 1fr; }
           .sg-tier { grid-template-columns: 1fr; gap: 24px; }
           .sg-faq { grid-template-columns: 1fr; gap: 40px; padding: 60px 24px; }
@@ -582,7 +735,10 @@ export default function LandingPage() {
 
       {/* ── MARQUEE ── */}
       <div className="sg-marquee-wrap">
-        <p className="sg-marquee-label">Instituciones que confían en EcoRed</p>
+        <div className="sg-marquee-head">
+          <p className="sg-marquee-label">Pilotos y comunidades</p>
+          <p className="sg-marquee-note">EcoRed está pensado para activarse rápido en aulas, colegios y municipios.</p>
+        </div>
         <div className="sg-marquee-row">
           <div className="sg-marquee-track">
             {[...MARQUEE, ...MARQUEE].map((name, i) => (
@@ -594,15 +750,74 @@ export default function LandingPage() {
 
       {/* ── DARK / INTERSECTION ── */}
       <section className="sg-dark" id="como-funciona">
-        <div className="sg-dark-glow" />
-        <h2 className="sr">La Intersección<br />Humana-Ecológica.</h2>
-        <p className="sr">
-          Uniendo tecnología de IA con acción comunitaria para escalar el impacto ambiental de cada barrio en el Perú.
-        </p>
-        <div className="sg-dark-visual sr">
-          <span className="sg-hand">🤚</span>
-          <span className="sg-spark">✦</span>
-          <span className="sg-hand">🌿</span>
+        <div className="sg-dark-shell">
+          <div className="sg-dark-copy sr">
+            <span className="sg-dark-kicker">
+              <Sparkles />
+              Cómo funciona
+            </span>
+            <h2>De una foto a un impacto medible.</h2>
+            <p>
+              EcoRed convierte una acción cotidiana en datos útiles para estudiantes,
+              docentes y municipios: clasifica residuos, acredita puntos y muestra
+              qué comunidad está moviendo más reciclaje.
+            </p>
+
+            <div className="sg-dark-proof">
+              {FLOW_METRICS.map((metric) => (
+                <div key={metric.label} className="sg-dark-proof-item">
+                  <span className="sg-dark-proof-value">{metric.value}</span>
+                  <span className="sg-dark-proof-label">{metric.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="sg-flow-panel sr">
+            <div className="sg-flow-top">
+              <span className="sg-flow-status">
+                <span className="sg-flow-status-dot" />
+                Sistema activo
+              </span>
+              <span className="sg-flow-place">
+                <MapPinned />
+                Lima, Perú
+              </span>
+            </div>
+
+            <div className="sg-flow-steps">
+              {FLOW_STEPS.map((step) => (
+                <div key={step.label} className="sg-flow-step">
+                  <span className="sg-flow-icon">
+                    <step.icon />
+                  </span>
+                  <div>
+                    <h3>{step.title}</h3>
+                    <p>{step.desc}</p>
+                  </div>
+                  <span className="sg-flow-label">{step.label}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="sg-flow-bottom">
+              <div className="sg-flow-result">
+                <Recycle />
+                <div>
+                  <strong>Botella PET lista para reciclar</strong>
+                  <span>Instrucciones claras, puntos acreditados y registro para el ranking.</span>
+                </div>
+              </div>
+              <div className="sg-flow-checks">
+                {["Material identificado", "Impacto ambiental calculado", "Reporte institucional actualizado"].map((item) => (
+                  <span key={item} className="sg-flow-check">
+                    <CheckCircle2 />
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
