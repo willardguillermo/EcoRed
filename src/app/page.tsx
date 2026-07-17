@@ -306,7 +306,7 @@ export default function LandingPage() {
             linear-gradient(180deg, #0C1412 0%, #08100E 100%);
           background-size: 44px 44px, 44px 44px, auto;
           color: #FAFAF8;
-          padding: 96px 48px 104px;
+          padding: 68px 48px 74px;
           position: relative; overflow: hidden;
         }
         .sg-dark::before {
@@ -316,41 +316,41 @@ export default function LandingPage() {
         }
         .sg-dark-shell {
           position: relative; z-index: 1;
-          max-width: 1120px; margin: 0 auto;
-          display: grid; grid-template-columns: .86fr 1.14fr; gap: 56px;
+          max-width: 1080px; margin: 0 auto;
+          display: grid; grid-template-columns: .9fr 1.1fr; gap: 38px;
           align-items: center;
         }
         .sg-dark-copy { text-align: left; }
         .sg-dark-kicker {
           display: inline-flex; align-items: center; gap: 8px;
-          margin-bottom: 20px;
+          margin-bottom: 14px;
           font-size: 11px; font-weight: 800; letter-spacing: .1em;
           text-transform: uppercase; color: #81D8CA;
         }
         .sg-dark-kicker svg { width: 15px; height: 15px; }
         .sg-dark h2 {
           font-family: 'DM Serif Display', serif;
-          font-size: clamp(38px, 5vw, 72px);
+          font-size: clamp(34px, 4.2vw, 56px);
           font-weight: 400; letter-spacing: -.03em; line-height: 1.05;
-          max-width: 560px; margin-bottom: 20px;
+          max-width: 520px; margin-bottom: 16px;
           text-wrap: balance;
         }
         .sg-dark-copy > p {
-          font-size: 16px; color: rgba(255,255,255,.66);
+          font-size: 15px; color: rgba(255,255,255,.66);
           max-width: 500px; line-height: 1.75;
           text-wrap: pretty;
         }
         .sg-dark-proof {
           display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 10px; margin-top: 32px; max-width: 520px;
+          gap: 10px; margin-top: 22px; max-width: 500px;
         }
         .sg-dark-proof-item {
           border: 1px solid rgba(255,255,255,.10);
           background: rgba(255,255,255,.045);
-          padding: 14px 13px; border-radius: 12px;
+          padding: 12px 13px; border-radius: 12px;
         }
         .sg-dark-proof-value {
-          display: block; color: #C8FFF6; font-size: 22px;
+          display: block; color: #C8FFF6; font-size: 20px;
           font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums;
         }
         .sg-dark-proof-label {
@@ -362,12 +362,12 @@ export default function LandingPage() {
           background: rgba(8,19,17,.78);
           box-shadow: 0 28px 80px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.08);
           border-radius: 22px;
-          padding: 22px;
+          padding: 18px;
           backdrop-filter: blur(18px);
         }
         .sg-flow-top {
           display: flex; align-items: center; justify-content: space-between; gap: 16px;
-          padding-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,.10);
+          padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,.10);
         }
         .sg-flow-status {
           display: inline-flex; align-items: center; gap: 8px;
@@ -384,22 +384,22 @@ export default function LandingPage() {
         }
         .sg-flow-place svg { width: 15px; height: 15px; color: #65D6C8; }
         .sg-flow-steps {
-          display: grid; gap: 12px; padding: 18px 0;
+          display: grid; gap: 10px; padding: 14px 0;
         }
         .sg-flow-step {
           display: grid; grid-template-columns: auto 1fr auto; gap: 14px;
           align-items: center;
-          padding: 15px;
+          padding: 13px;
           border-radius: 16px;
           background: rgba(255,255,255,.055);
           border: 1px solid rgba(255,255,255,.075);
         }
         .sg-flow-icon {
-          width: 40px; height: 40px; border-radius: 12px;
+          width: 36px; height: 36px; border-radius: 11px;
           display: flex; align-items: center; justify-content: center;
           background: rgba(101,214,200,.12); color: #A7FFF2;
         }
-        .sg-flow-icon svg { width: 20px; height: 20px; }
+        .sg-flow-icon svg { width: 18px; height: 18px; }
         .sg-flow-step h3 {
           margin: 0 0 3px; color: #FFFFFF;
           font-size: 15px; font-weight: 800; letter-spacing: -.01em;
@@ -418,16 +418,16 @@ export default function LandingPage() {
           padding-top: 16px; border-top: 1px solid rgba(255,255,255,.10);
         }
         .sg-flow-result {
-          min-height: 132px;
+          min-height: 116px;
           border-radius: 18px;
-          padding: 18px;
+          padding: 16px;
           background: linear-gradient(145deg, rgba(0,137,123,.22), rgba(21,101,192,.10));
           border: 1px solid rgba(129,216,202,.18);
           display: flex; flex-direction: column; justify-content: space-between;
         }
         .sg-flow-result svg { width: 24px; height: 24px; color: #C8FFF6; }
         .sg-flow-result strong {
-          display: block; color: #FFFFFF; font-size: 20px; line-height: 1.05;
+          display: block; color: #FFFFFF; font-size: 18px; line-height: 1.08;
           letter-spacing: -.02em;
         }
         .sg-flow-result span {
@@ -436,7 +436,7 @@ export default function LandingPage() {
         }
         .sg-flow-checks {
           border-radius: 18px;
-          padding: 18px;
+          padding: 16px;
           background: rgba(255,255,255,.045);
           border: 1px solid rgba(255,255,255,.075);
           display: flex; flex-direction: column; gap: 12px;
@@ -446,43 +446,50 @@ export default function LandingPage() {
           color: rgba(255,255,255,.66); font-size: 12px;
         }
         .sg-flow-check svg { width: 15px; height: 15px; color: #81D8CA; flex-shrink: 0; }
-        }
 
         /* FEATURES */
-        .sg-section { max-width: 1120px; margin: 0 auto; padding: 80px 48px; }
+        .sg-section { max-width: 1120px; margin: 0 auto; padding: 64px 48px 72px; }
+        .sg-section-head {
+          display: grid; grid-template-columns: minmax(0, .92fr) minmax(280px, .78fr);
+          gap: 44px; align-items: end; margin-bottom: 30px;
+        }
+        .sg-section-title { min-width: 0; }
         .sg-label {
           display: inline-block; font-size: 11px; font-weight: 700;
           letter-spacing: .07em; text-transform: uppercase;
           color: #fff; background: #0A0A0A;
-          padding: 4px 10px; border-radius: 3px; margin-bottom: 22px;
+          padding: 4px 10px; border-radius: 3px; margin-bottom: 16px;
         }
         .sg-h2 {
           font-family: 'DM Serif Display', serif;
-          font-size: clamp(30px, 4vw, 50px);
+          font-size: clamp(32px, 4vw, 48px);
           font-weight: 400; letter-spacing: -.03em; line-height: 1.08;
-          color: #0A0A0A; max-width: 540px; margin-bottom: 14px;
+          color: #0A0A0A; max-width: 540px; margin-bottom: 0;
+          text-wrap: balance;
         }
         .sg-h2 em { font-style: italic; }
         .sg-sub {
           font-size: 15px; color: #6B6B6B;
-          max-width: 480px; line-height: 1.65; margin-bottom: 48px;
+          max-width: 480px; line-height: 1.65; margin: 0;
+          text-wrap: pretty;
         }
         .sg-grid-2 {
           display: grid; grid-template-columns: 1fr 1fr;
-          gap: 2px; background: rgba(0,0,0,.07);
-          border: 1px solid rgba(0,0,0,.07); border-radius: 16px; overflow: hidden;
+          gap: 1px; background: rgba(0,0,0,.08);
+          border: 1px solid rgba(0,0,0,.08); border-radius: 16px; overflow: hidden;
         }
-        .sg-feat-card { background: #fff; padding: 36px; }
+        .sg-feat-card { background: #fff; padding: 30px; }
         .sg-feat-illo {
-          height: 164px; border-radius: 10px; overflow: hidden;
+          height: 124px; border-radius: 10px; overflow: hidden;
           display: flex; align-items: center; justify-content: center;
-          margin-bottom: 28px; font-size: 66px;
+          margin-bottom: 22px; font-size: 56px;
         }
+        .sg-feat-emoji { font-size: 52px; }
         .sg-feat-title {
           font-size: 16px; font-weight: 600; color: #0A0A0A;
           letter-spacing: -.01em; margin-bottom: 8px;
         }
-        .sg-feat-desc { font-size: 14px; color: #6B6B6B; line-height: 1.65; }
+        .sg-feat-desc { font-size: 14px; color: #6B6B6B; line-height: 1.62; }
 
         /* TIERS */
         .sg-tiers { max-width: 920px; margin: 0 auto; padding: 80px 48px; }
@@ -674,20 +681,63 @@ export default function LandingPage() {
           .sg-nav { padding: 16px 20px; }
           .sg-nav-links li:not(:last-child) { display: none; }
           .sg-hero { padding: 100px 24px 60px; }
-          .sg-section, .sg-tiers { padding: 60px 24px; }
+          .sg-section, .sg-tiers { padding: 52px 24px; }
           .sg-marquee-head { padding: 14px 24px 12px; align-items: flex-start; flex-direction: column; gap: 6px; }
           .sg-marquee-note { text-align: left; }
-          .sg-dark { padding: 64px 24px 72px; }
-          .sg-dark-shell { grid-template-columns: 1fr; gap: 36px; }
-          .sg-dark-proof { grid-template-columns: 1fr; }
+          .sg-dark { padding: 48px 20px 54px; }
+          .sg-dark-shell { grid-template-columns: 1fr; gap: 26px; }
+          .sg-dark-kicker { margin-bottom: 12px; }
+          .sg-dark h2 { font-size: clamp(32px, 10vw, 44px); }
+          .sg-dark-copy > p { font-size: 14px; line-height: 1.65; }
+          .sg-dark-proof { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 18px; }
+          .sg-dark-proof-item { padding: 10px 8px; }
+          .sg-dark-proof-value { font-size: 17px; }
+          .sg-dark-proof-label { font-size: 9.5px; }
+          .sg-flow-panel { padding: 12px; border-radius: 18px; }
+          .sg-flow-top { padding-bottom: 11px; }
+          .sg-flow-place { display: none; }
+          .sg-flow-step { grid-template-columns: auto 1fr; gap: 10px; padding: 11px; }
+          .sg-flow-label { display: none; }
+          .sg-flow-step h3 { font-size: 14px; }
+          .sg-flow-step p { font-size: 12px; line-height: 1.38; }
           .sg-flow-bottom { grid-template-columns: 1fr; }
+          .sg-flow-result { min-height: 0; gap: 18px; }
+          .sg-flow-checks { gap: 9px; }
+          .sg-section-head { grid-template-columns: 1fr; gap: 14px; margin-bottom: 24px; }
+          .sg-label { margin-bottom: 12px; }
+          .sg-h2 { font-size: clamp(34px, 11vw, 46px); }
+          .sg-sub { font-size: 14px; line-height: 1.58; }
           .sg-grid-2 { grid-template-columns: 1fr; }
+          .sg-feat-card {
+            display: grid; grid-template-columns: 76px 1fr; gap: 16px;
+            align-items: center; padding: 18px;
+          }
+          .sg-feat-illo {
+            height: 76px; margin-bottom: 0; border-radius: 14px;
+          }
+          .sg-feat-emoji { font-size: 32px; }
+          .sg-feat-title { font-size: 15px; margin-bottom: 4px; }
+          .sg-feat-desc { font-size: 12.5px; line-height: 1.48; }
           .sg-tier { grid-template-columns: 1fr; gap: 24px; }
           .sg-faq { grid-template-columns: 1fr; gap: 40px; padding: 60px 24px; }
           .sg-cta { grid-template-columns: 1fr; gap: 36px; padding: 60px 24px; }
           .sg-foot-top { grid-template-columns: 1fr; gap: 36px; }
           .sg-footer { padding: 48px 24px 28px; }
           .sg-foot-bottom { flex-direction: column; gap: 10px; text-align: center; }
+        }
+
+        @media (max-width: 430px) {
+          .sg-section { padding: 44px 16px 52px; }
+          .sg-dark { padding: 42px 16px 48px; }
+          .sg-dark-proof { grid-template-columns: 1fr; }
+          .sg-dark-proof-label { font-size: 11px; }
+          .sg-flow-step { align-items: start; }
+          .sg-flow-icon { width: 34px; height: 34px; }
+          .sg-feat-card {
+            grid-template-columns: 58px 1fr; gap: 13px; padding: 14px;
+          }
+          .sg-feat-illo { height: 58px; border-radius: 12px; }
+          .sg-feat-emoji { font-size: 25px; }
         }
       `}</style>
 
@@ -823,21 +873,27 @@ export default function LandingPage() {
 
       {/* ── FEATURES ── */}
       <section className="sg-section" id="funcionalidades">
-        <span className="sg-label sr">Funcionalidades</span>
-        <h2 className="sg-h2 sr">Funcionalidades diseñadas<br /><em>para escalar.</em></h2>
-        <p className="sg-sub sr">
-          Desde el escáner de IA hasta el panel municipal, cada herramienta está construida para generar impacto real.
-        </p>
+        <div className="sg-section-head sr">
+          <div className="sg-section-title">
+            <span className="sg-label">Funcionalidades</span>
+            <h2 className="sg-h2">Herramientas claras para reciclar y medir.</h2>
+          </div>
+          <p className="sg-sub">
+            Desde el escáner de IA hasta el panel municipal, cada módulo está pensado para una demo rápida y un uso real en comunidad.
+          </p>
+        </div>
         <div className="sg-grid-2 sr">
           {FEATURES.map((f, i) => (
             <div key={i} className="sg-feat-card">
               <div className="sg-feat-illo" style={{ background: f.bg }}>
-                <span style={{ fontSize: 62, filter: `drop-shadow(0 8px 24px rgba(${f.shadow},.35))` }}>
+                <span className="sg-feat-emoji" style={{ filter: `drop-shadow(0 8px 24px rgba(${f.shadow},.35))` }}>
                   {f.icon}
                 </span>
               </div>
-              <div className="sg-feat-title">{f.title}</div>
-              <p className="sg-feat-desc">{f.desc}</p>
+              <div>
+                <div className="sg-feat-title">{f.title}</div>
+                <p className="sg-feat-desc">{f.desc}</p>
+              </div>
             </div>
           ))}
         </div>
