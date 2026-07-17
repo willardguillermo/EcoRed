@@ -194,7 +194,7 @@ export default async function DashboardPage() {
               background: 'rgba(255,255,255,0.30)', padding: '28px', textAlign: 'center',
               backdropFilter: 'blur(28px) saturate(165%)',
               WebkitBackdropFilter: 'blur(28px) saturate(165%)',
-              boxShadow: '0 20px 54px rgba(58,68,151,0.12), inset 0 1px 0 rgba(255,255,255,0.7)',
+              boxShadow: '0 20px 54px rgba(0,65,58,0.10), inset 0 1px 0 rgba(255,255,255,0.7)',
             }}>
               <Trophy className="h-8 w-8 mx-auto mb-2" style={{ color: 'rgba(0,0,0,0.13)' }} />
               <p style={{ fontSize: 14, color: 'rgba(26,26,46,0.4)' }}>
@@ -246,7 +246,7 @@ export default async function DashboardPage() {
               background: 'rgba(255,255,255,0.30)', padding: '36px', textAlign: 'center',
               backdropFilter: 'blur(28px) saturate(165%)',
               WebkitBackdropFilter: 'blur(28px) saturate(165%)',
-              boxShadow: '0 20px 54px rgba(58,68,151,0.12), inset 0 1px 0 rgba(255,255,255,0.7)',
+              boxShadow: '0 20px 54px rgba(0,65,58,0.10), inset 0 1px 0 rgba(255,255,255,0.7)',
             }}>
               <Camera className="h-10 w-10 mx-auto mb-3" style={{ color: 'rgba(0,0,0,0.11)' }} />
               <p style={{ fontSize: 14, fontWeight: 600, color: '#1A1A2E', marginBottom: 4 }}>Aún no has reciclado</p>
@@ -260,7 +260,7 @@ export default async function DashboardPage() {
               border: '1px solid rgba(255,255,255,0.66)',
               background: 'rgba(255,255,255,0.40)',
               overflow: 'hidden',
-              boxShadow: '0 22px 62px rgba(58,68,151,0.14), inset 0 1px 0 rgba(255,255,255,0.74)',
+              boxShadow: '0 22px 62px rgba(0,65,58,0.11), inset 0 1px 0 rgba(255,255,255,0.74)',
               backdropFilter: 'blur(30px) saturate(170%)',
               WebkitBackdropFilter: 'blur(30px) saturate(170%)',
             }}>

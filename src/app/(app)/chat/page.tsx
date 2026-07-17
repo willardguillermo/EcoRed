@@ -145,7 +145,7 @@ export default function ChatPage() {
           background: 'rgba(255,255,255,0.32)',
           backdropFilter: 'blur(30px) saturate(170%)',
           WebkitBackdropFilter: 'blur(30px) saturate(170%)',
-          boxShadow: '0 18px 48px rgba(58,68,151,0.12), inset 0 1px 0 rgba(255,255,255,0.72)',
+          boxShadow: '0 18px 48px rgba(0,65,58,0.10), inset 0 1px 0 rgba(255,255,255,0.72)',
           flexShrink: 0,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -191,7 +191,7 @@ export default function ChatPage() {
                 border: '1px solid rgba(255,255,255,0.68)',
                 backdropFilter: 'blur(30px) saturate(170%)',
                 WebkitBackdropFilter: 'blur(30px) saturate(170%)',
-                boxShadow: '0 22px 54px rgba(58,68,151,0.13), inset 0 1px 0 rgba(255,255,255,0.72)',
+                boxShadow: '0 22px 54px rgba(0,65,58,0.11), inset 0 1px 0 rgba(255,255,255,0.72)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <Leaf className="h-8 w-8 text-[#00897B]" />
@@ -217,7 +217,7 @@ export default function ChatPage() {
                       background: 'rgba(255,255,255,0.36)',
                       color: '#1A1A2E', fontWeight: 400,
                       transition: 'all 0.18s ease',
-                      boxShadow: '0 16px 38px rgba(58,68,151,0.11), inset 0 1px 0 rgba(255,255,255,0.72)',
+                      boxShadow: '0 16px 38px rgba(0,65,58,0.10), inset 0 1px 0 rgba(255,255,255,0.72)',
                       backdropFilter: 'blur(26px) saturate(160%)',
                       WebkitBackdropFilter: 'blur(26px) saturate(160%)',
                     }}
@@ -259,7 +259,7 @@ export default function ChatPage() {
                       border: isUser ? '1px solid rgba(255,255,255,0.18)' : '1px solid rgba(255,255,255,0.66)',
                       boxShadow: isUser
                         ? '0 3px 10px rgba(0,137,123,0.28)'
-                        : '0 18px 44px rgba(58,68,151,0.12), inset 0 1px 0 rgba(255,255,255,0.72)',
+                        : '0 18px 44px rgba(0,65,58,0.10), inset 0 1px 0 rgba(255,255,255,0.72)',
                       backdropFilter: isUser ? undefined : 'blur(28px) saturate(165%)',
                       WebkitBackdropFilter: isUser ? undefined : 'blur(28px) saturate(165%)',
                     }}>
@@ -287,7 +287,7 @@ export default function ChatPage() {
           background: 'rgba(255,255,255,0.32)',
           backdropFilter: 'blur(30px) saturate(170%)',
           WebkitBackdropFilter: 'blur(30px) saturate(170%)',
-          boxShadow: '0 -18px 48px rgba(58,68,151,0.12), inset 0 1px 0 rgba(255,255,255,0.72)',
+          boxShadow: '0 -18px 48px rgba(0,65,58,0.10), inset 0 1px 0 rgba(255,255,255,0.72)',
           padding: '12px 16px 16px',
           flexShrink: 0,
         }}>
