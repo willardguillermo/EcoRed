@@ -98,7 +98,9 @@ export function AppShell({ children, profile }: AppShellProps) {
                     : "glass-nav-item text-muted-foreground hover:text-foreground"
                 )}
               >
-                <item.icon className="h-4 w-4 shrink-0" />
+                <span className={cn("glass-nav-icon", active && "glass-nav-icon-active")}>
+                  <item.icon className="h-4 w-4" />
+                </span>
                 {item.label}
               </Link>
             )
@@ -127,7 +129,9 @@ export function AppShell({ children, profile }: AppShellProps) {
                         : "glass-nav-item text-muted-foreground hover:text-foreground"
                     )}
                   >
-                    <item.icon className="h-4 w-4 shrink-0" />
+                    <span className={cn("glass-nav-icon", active && "glass-nav-icon-active")}>
+                      <item.icon className="h-4 w-4" />
+                    </span>
                     {item.label}
                   </Link>
                 )
@@ -155,7 +159,9 @@ export function AppShell({ children, profile }: AppShellProps) {
             onClick={handleLogout}
             className="glass-nav-item mt-2 flex w-full items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-all duration-200"
           >
-            <LogOut className="h-4 w-4" />
+            <span className="glass-nav-icon h-8 w-8">
+              <LogOut className="h-4 w-4" />
+            </span>
             Cerrar sesión
           </button>
         </div>
@@ -196,7 +202,9 @@ export function AppShell({ children, profile }: AppShellProps) {
                   active ? "glass-nav-active text-[#00897B]" : "text-muted-foreground hover:bg-white/45"
                 )}
               >
-                <item.icon className={cn("h-5 w-5", active && "stroke-[2.5]")} />
+                <span className={cn("glass-nav-icon", active && "glass-nav-icon-active")}>
+                  <item.icon className={cn("h-4.5 w-4.5", active && "stroke-[2.5]")} />
+                </span>
                 {item.label}
               </Link>
             )

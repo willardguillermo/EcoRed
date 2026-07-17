@@ -142,10 +142,10 @@ export default function ChatPage() {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '12px 16px',
           borderBottom: '1px solid rgba(255,255,255,0.62)',
-          background: 'rgba(255,255,255,0.62)',
-          backdropFilter: 'blur(22px) saturate(150%)',
-          WebkitBackdropFilter: 'blur(22px) saturate(150%)',
-          boxShadow: '0 14px 38px rgba(0,65,58,0.08)',
+          background: 'rgba(255,255,255,0.32)',
+          backdropFilter: 'blur(30px) saturate(170%)',
+          WebkitBackdropFilter: 'blur(30px) saturate(170%)',
+          boxShadow: '0 18px 48px rgba(58,68,151,0.12), inset 0 1px 0 rgba(255,255,255,0.72)',
           flexShrink: 0,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -187,11 +187,11 @@ export default function ChatPage() {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', textAlign: 'center', gap: 20, paddingBottom: 32 }}>
               <div className="icon-glow" style={{
                 width: 68, height: 68, borderRadius: 20,
-                background: 'linear-gradient(145deg, rgba(255,255,255,0.78), rgba(224,242,241,0.42))',
+                background: 'linear-gradient(145deg, rgba(255,255,255,0.42), rgba(224,242,241,0.22))',
                 border: '1px solid rgba(255,255,255,0.68)',
-                backdropFilter: 'blur(18px) saturate(145%)',
-                WebkitBackdropFilter: 'blur(18px) saturate(145%)',
-                boxShadow: '0 18px 48px rgba(0,65,58,0.10), inset 0 1px 0 rgba(255,255,255,0.7)',
+                backdropFilter: 'blur(30px) saturate(170%)',
+                WebkitBackdropFilter: 'blur(30px) saturate(170%)',
+                boxShadow: '0 22px 54px rgba(58,68,151,0.13), inset 0 1px 0 rgba(255,255,255,0.72)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <Leaf className="h-8 w-8 text-[#00897B]" />
@@ -214,12 +214,12 @@ export default function ChatPage() {
                       textAlign: 'left', fontSize: 13, padding: '10px 14px',
                       borderRadius: 12, cursor: 'pointer',
                       border: '1px solid rgba(255,255,255,0.66)',
-                      background: 'rgba(255,255,255,0.66)',
+                      background: 'rgba(255,255,255,0.36)',
                       color: '#1A1A2E', fontWeight: 400,
                       transition: 'all 0.18s ease',
-                      boxShadow: '0 12px 30px rgba(0,65,58,0.08), inset 0 1px 0 rgba(255,255,255,0.7)',
-                      backdropFilter: 'blur(16px) saturate(140%)',
-                      WebkitBackdropFilter: 'blur(16px) saturate(140%)',
+                      boxShadow: '0 16px 38px rgba(58,68,151,0.11), inset 0 1px 0 rgba(255,255,255,0.72)',
+                      backdropFilter: 'blur(26px) saturate(160%)',
+                      WebkitBackdropFilter: 'blur(26px) saturate(160%)',
                     }}
                   >
                     {s}
@@ -254,14 +254,14 @@ export default function ChatPage() {
                       fontSize: 14, lineHeight: 1.65,
                       background: isUser
                         ? 'linear-gradient(135deg, #00897B 0%, #006B61 100%)'
-                        : 'rgba(255,255,255,0.72)',
+                        : 'rgba(255,255,255,0.42)',
                       color: isUser ? '#ffffff' : '#1A1A2E',
                       border: isUser ? '1px solid rgba(255,255,255,0.18)' : '1px solid rgba(255,255,255,0.66)',
                       boxShadow: isUser
                         ? '0 3px 10px rgba(0,137,123,0.28)'
-                        : '0 14px 34px rgba(0,65,58,0.08), inset 0 1px 0 rgba(255,255,255,0.72)',
-                      backdropFilter: isUser ? undefined : 'blur(18px) saturate(140%)',
-                      WebkitBackdropFilter: isUser ? undefined : 'blur(18px) saturate(140%)',
+                        : '0 18px 44px rgba(58,68,151,0.12), inset 0 1px 0 rgba(255,255,255,0.72)',
+                      backdropFilter: isUser ? undefined : 'blur(28px) saturate(165%)',
+                      WebkitBackdropFilter: isUser ? undefined : 'blur(28px) saturate(165%)',
                     }}>
                       {msg.content === "" && !isUser ? (
                         <div style={{ display: 'flex', gap: 4, alignItems: 'center', height: 20 }}>
@@ -284,10 +284,10 @@ export default function ChatPage() {
         {/* ── Input ── */}
         <div style={{
           borderTop: '1px solid rgba(255,255,255,0.62)',
-          background: 'rgba(255,255,255,0.62)',
-          backdropFilter: 'blur(22px) saturate(150%)',
-          WebkitBackdropFilter: 'blur(22px) saturate(150%)',
-          boxShadow: '0 -14px 38px rgba(0,65,58,0.08)',
+          background: 'rgba(255,255,255,0.32)',
+          backdropFilter: 'blur(30px) saturate(170%)',
+          WebkitBackdropFilter: 'blur(30px) saturate(170%)',
+          boxShadow: '0 -18px 48px rgba(58,68,151,0.12), inset 0 1px 0 rgba(255,255,255,0.72)',
           padding: '12px 16px 16px',
           flexShrink: 0,
         }}>
@@ -306,13 +306,13 @@ export default function ChatPage() {
               style={{
                 flex: 1, resize: 'none', fontSize: 14, lineHeight: '1.5',
                 borderRadius: 12, border: '1px solid rgba(255,255,255,0.68)',
-                background: 'rgba(255,255,255,0.58)', padding: '10px 14px',
+                background: 'rgba(255,255,255,0.34)', padding: '10px 14px',
                 color: '#1A1A2E', outline: 'none',
                 maxHeight: 128, overflowY: 'auto',
                 transition: 'border-color 0.18s ease',
                 opacity: streaming ? 0.6 : 1,
-                backdropFilter: 'blur(16px) saturate(135%)',
-                WebkitBackdropFilter: 'blur(16px) saturate(135%)',
+                backdropFilter: 'blur(24px) saturate(155%)',
+                WebkitBackdropFilter: 'blur(24px) saturate(155%)',
               }}
               className="focus:border-[#00897B]/40 focus:!bg-white"
             />
