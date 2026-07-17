@@ -12,6 +12,7 @@ interface AppShellProps {
   children: React.ReactNode
   profile: {
     full_name: string | null
+    avatar_url: string | null
     role:      UserRole
     points:    number
     org_id:    string | null
@@ -27,6 +28,25 @@ const NAV_ITEMS = [
 ]
 
 const INSTITUTION_ROLES: UserRole[] = ["school_admin", "municipal_admin", "platform_admin"]
+
+function ProfileAvatar({ profile, size = "md" }: {
+  profile: AppShellProps["profile"]
+  size?:   "sm" | "md"
+}) {
+  const sizeClass = size === "sm" ? "h-8 w-8" : "h-9 w-9"
+  const initial = (profile.full_name ?? "U")[0].toUpperCase()
+
+  return (
+    <span className={`flex ${sizeClass} shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#E0F2F1] text-sm font-bold text-[#00897B]`}>
+      {profile.avatar_url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={profile.avatar_url} alt="Avatar de perfil" className="h-full w-full object-cover" />
+      ) : (
+        initial
+      )}
+    </span>
+  )
+}
 
 export function AppShell({ children, profile }: AppShellProps) {
   const pathname  = usePathname()
@@ -142,10 +162,11 @@ export function AppShell({ children, profile }: AppShellProps) {
 
         {/* User info + logout */}
         <div className="border-t border-border p-3">
-          <div className="glass-profile-pill flex items-center gap-3 px-2 py-2 rounded-lg">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#E0F2F1] text-[#00897B] text-sm font-bold">
-              {(profile.full_name ?? "U")[0].toUpperCase()}
-            </div>
+          <Link
+            href="/profile"
+            className="glass-profile-pill flex items-center gap-3 px-2 py-2 rounded-lg transition-all hover:-translate-y-0.5 hover:bg-white/55"
+          >
+            <ProfileAvatar profile={profile} size="sm" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">
                 {profile.full_name ?? "Usuario"}
@@ -154,7 +175,7 @@ export function AppShell({ children, profile }: AppShellProps) {
                 {points} pts
               </p>
             </div>
-          </div>
+          </Link>
           <button
             onClick={handleLogout}
             className="glass-nav-item mt-2 flex w-full items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground transition-all duration-200"
@@ -178,9 +199,9 @@ export function AppShell({ children, profile }: AppShellProps) {
             <span className="font-bold text-[#1A1A2E]">EcoRed</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E0F2F1] text-[#00897B] text-sm font-bold">
-              {(profile.full_name ?? "U")[0].toUpperCase()}
-            </div>
+            <Link href="/profile" aria-label="Editar perfil" className="rounded-full ring-offset-2 transition-transform active:scale-95">
+              <ProfileAvatar profile={profile} size="sm" />
+            </Link>
           </div>
         </header>
 
