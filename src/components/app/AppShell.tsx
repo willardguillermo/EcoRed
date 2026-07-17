@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
-import { Home, Camera, MessageCircle, Trophy, Leaf, LogOut, Building2, MapPin, FileBarChart2 } from "lucide-react"
+import { Home, Camera, MessageCircle, Trophy, Leaf, LogOut, Building2, MapPin, FileBarChart2, UsersRound } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
 import type { UserRole } from "@/types/database"
@@ -23,7 +23,8 @@ const NAV_ITEMS = [
   { href: "/dashboard",   icon: Home,          label: "Inicio"       },
   { href: "/scan",        icon: Camera,        label: "Escanear"     },
   { href: "/map",         icon: MapPin,        label: "Mapa"         },
-  { href: "/chat",        icon: MessageCircle, label: "EcoAsistente" },
+  { href: "/community",   icon: UsersRound,    label: "EcoMuro"      },
+  { href: "/chat",        icon: MessageCircle, label: "EcoAsistente", shortLabel: "IA" },
   { href: "/leaderboard", icon: Trophy,        label: "Ranking"      },
 ]
 
@@ -226,7 +227,7 @@ export function AppShell({ children, profile }: AppShellProps) {
                 <span className={cn("glass-nav-icon", active && "glass-nav-icon-active")}>
                   <item.icon className={cn("h-4.5 w-4.5", active && "stroke-[2.5]")} />
                 </span>
-                {item.label}
+                {item.shortLabel ?? item.label}
               </Link>
             )
           })}

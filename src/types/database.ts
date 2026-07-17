@@ -119,6 +119,38 @@ export interface Database {
         Insert: Omit<Database["public"]["Tables"]["challenge_completions"]["Row"], "id" | "completed_at">
         Update: never
       }
+      community_posts: {
+        Row: {
+          id:         string
+          user_id:    string
+          org_id:     string | null
+          message:    string
+          image_url:  string | null
+          created_at: string
+        }
+        Insert: Omit<Database["public"]["Tables"]["community_posts"]["Row"], "id" | "created_at">
+        Update: Partial<Pick<Database["public"]["Tables"]["community_posts"]["Row"], "message" | "image_url">>
+      }
+      community_post_likes: {
+        Row: {
+          post_id:    string
+          user_id:    string
+          created_at: string
+        }
+        Insert: Omit<Database["public"]["Tables"]["community_post_likes"]["Row"], "created_at">
+        Update: never
+      }
+      community_post_comments: {
+        Row: {
+          id:         string
+          post_id:    string
+          user_id:    string
+          body:       string
+          created_at: string
+        }
+        Insert: Omit<Database["public"]["Tables"]["community_post_comments"]["Row"], "id" | "created_at">
+        Update: Partial<Pick<Database["public"]["Tables"]["community_post_comments"]["Row"], "body">>
+      }
     }
     Views: {
       org_leaderboard: {
