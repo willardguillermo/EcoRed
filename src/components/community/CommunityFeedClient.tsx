@@ -50,6 +50,9 @@ export function CommunityFeedClient({ initialPosts, initialMode, currentUser }: 
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({})
 
   const previewUrl = useMemo(() => imageUrl.trim(), [imageUrl])
+  const weeklyGoal = 20
+  const weeklyStories = posts.length
+  const weeklyProgress = Math.min(100, Math.round((weeklyStories / weeklyGoal) * 100))
 
   async function refreshFeed() {
     setRefreshing(true)
@@ -367,11 +370,23 @@ export function CommunityFeedClient({ initialPosts, initialMode, currentUser }: 
         <section className="rounded-2xl border border-white/60 bg-white/32 p-4 shadow-[0_18px_52px_rgba(0,65,58,0.08)] backdrop-blur-2xl">
           <div className="flex items-center gap-2 text-[#00897B]">
             <Sparkles className="h-4 w-4" />
-            <p className="text-sm font-bold">Idea para presentar</p>
+            <p className="text-sm font-bold">Reto comunitario</p>
           </div>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            Después de escanear un residuo, EcoRed puede sugerir compartirlo aquí para inspirar a la comunidad.
+            Meta de la semana: llenar el muro con 20 acciones reales de reciclaje.
           </p>
+          <div className="mt-4">
+            <div className="mb-2 flex items-center justify-between text-xs font-bold text-[#1A1A2E]">
+              <span>{weeklyStories} historias</span>
+              <span>{weeklyGoal} meta</span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-white/55">
+              <div
+                className="h-full rounded-full bg-[#00897B] transition-all"
+                style={{ width: `${weeklyProgress}%` }}
+              />
+            </div>
+          </div>
         </section>
       </aside>
     </div>
