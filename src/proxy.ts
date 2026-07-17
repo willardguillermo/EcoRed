@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
-const PUBLIC_ROUTES = ["/", "/auth/login", "/auth/register"]
+const PUBLIC_ROUTES = ["/", "/auth/login", "/auth/register", "/sw.js"]
 
 function isPublicRoute(pathname: string) {
   return PUBLIC_ROUTES.includes(pathname) || pathname.startsWith("/join/")
@@ -62,5 +62,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon\\.ico|manifest\\.json|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon\\.ico|manifest\\.json|sw\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 }
