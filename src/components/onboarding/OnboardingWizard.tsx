@@ -22,7 +22,7 @@ interface CreatedOrg   { id: string; name: string; type: OrgType }
 
 const STEPS = ["Tipo y datos", "Configuración", "QR y compartir"]
 
-export function OnboardingWizard({ userId: _userId }: { userId: string }) {
+export function OnboardingWizard() {
   const router = useRouter()
 
   const [step,    setStep]    = useState<Step>(1)

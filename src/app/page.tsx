@@ -1,6 +1,6 @@
 import Link from "next/link"
-import Script from "next/script"
 import { Leaf } from "lucide-react"
+import { LandingInteractions } from "@/components/landing/LandingInteractions"
 
 // ── Pixel-art leaf — deterministic noise, SSR-safe ───────────────────────────
 function pixelNoise(x: number, y: number): number {
@@ -493,7 +493,15 @@ export default function LandingPage() {
           to   { opacity: 1; transform: translateY(0); }
         }
         .hero-anim {
+          opacity: 1; transform: translateY(0);
+        }
+        .landing-enhanced .hero-anim {
           animation: heroUp .7s cubic-bezier(.16,1,.3,1) both;
+        }
+        .hero-anim.visible {
+          opacity: 1 !important;
+          transform: translateY(0) !important;
+          animation: none !important;
         }
         .ha-1 { animation-delay: .08s; }
         .ha-2 { animation-delay: .18s; }
@@ -503,8 +511,11 @@ export default function LandingPage() {
 
         /* SCROLL REVEAL — sólo para secciones bajo el fold */
         .sr {
-          opacity: 0; transform: translateY(20px);
+          opacity: 1; transform: translateY(0);
           transition: opacity .65s cubic-bezier(.16,1,.3,1), transform .65s cubic-bezier(.16,1,.3,1);
+        }
+        .landing-enhanced .sr {
+          opacity: 0; transform: translateY(20px);
         }
         .sr.visible { opacity: 1; transform: translateY(0); }
         .sr-d1 { transition-delay: .06s; } .sr-d2 { transition-delay: .12s; }
@@ -738,43 +749,7 @@ export default function LandingPage() {
         </footer>
       </div>
 
-      <Script id="landing-interactions" strategy="afterInteractive">{`
-        (function() {
-          var nav = document.getElementById('main-nav');
-          var ticking = false;
-          function updateNav() {
-            if (nav) {
-              if (window.scrollY > 24) nav.classList.add('scrolled');
-              else nav.classList.remove('scrolled');
-            }
-            ticking = false;
-          }
-          window.addEventListener('scroll', function() {
-            if (!ticking) { requestAnimationFrame(updateNav); ticking = true; }
-          }, { passive: true });
-          updateNav();
-
-          function initReveal() {
-            var els = document.querySelectorAll('.sr');
-            if (!els.length) return;
-            var io = new IntersectionObserver(function(entries) {
-              entries.forEach(function(e) {
-                if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
-              });
-            }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
-            els.forEach(function(el) { io.observe(el); });
-          }
-          requestAnimationFrame(function() { requestAnimationFrame(initReveal); });
-
-          /* Fallback: si el usuario volvió via back-navigation y los .sr
-             siguen invisibles (script no re-ejecutó el observer), revelarlos. */
-          setTimeout(function() {
-            document.querySelectorAll('.sr:not(.visible)').forEach(function(el) {
-              el.classList.add('visible');
-            });
-          }, 600);
-        })();
-      `}</Script>
+      <LandingInteractions />
     </>
   )
 }

@@ -2,8 +2,14 @@
 
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { Plus, X, Loader2 } from "lucide-react"
+import { X, Loader2 } from "lucide-react"
 import { toast } from "sonner"
+
+function getTomorrowDateInputValue() {
+  const tomorrow = new Date()
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  return tomorrow.toISOString().split("T")[0]
+}
 
 export function CreateChallengeButton() {
   const router           = useRouter()
@@ -15,6 +21,7 @@ export function CreateChallengeButton() {
   const [description, setDescription] = useState("")
   const [points,      setPoints]      = useState("50")
   const [deadline,    setDeadline]    = useState("")
+  const [minDate] = useState(getTomorrowDateInputValue)
 
   function reset() {
     setTitle(""); setDescription(""); setPoints("50"); setDeadline("")
@@ -41,9 +48,6 @@ export function CreateChallengeButton() {
       setSaving(false)
     }
   }
-
-  // Min date = tomorrow
-  const minDate = new Date(Date.now() + 86_400_000).toISOString().split("T")[0]
 
   return (
     <>

@@ -45,6 +45,10 @@ function formatDate(iso: string) {
   }).format(new Date(iso))
 }
 
+function getDaysLeft(deadline: string) {
+  return Math.ceil((new Date(deadline).getTime() - new Date().getTime()) / 86_400_000)
+}
+
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -66,9 +70,7 @@ export default async function DashboardPage() {
   const [impact, scans, challenge] = await Promise.all([impactP, scansP, challengeP])
 
   const firstName = profile.full_name?.split(" ")[0] ?? "Usuario"
-  const daysLeft  = challenge
-    ? Math.ceil((new Date(challenge.deadline).getTime() - Date.now()) / 86_400_000)
-    : 0
+  const daysLeft  = challenge ? getDaysLeft(challenge.deadline) : 0
 
   return (
     <>

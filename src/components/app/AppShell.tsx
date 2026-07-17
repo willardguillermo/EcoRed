@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Home, Camera, MessageCircle, Trophy, Leaf, LogOut, Building2, MapPin, FileBarChart2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
@@ -30,7 +30,6 @@ const INSTITUTION_ROLES: UserRole[] = ["school_admin", "municipal_admin", "platf
 
 export function AppShell({ children, profile }: AppShellProps) {
   const pathname  = usePathname()
-  const router    = useRouter()
   const supabase  = createClient()
 
   const [points, setPoints] = useState(profile.points)
@@ -69,8 +68,7 @@ export function AppShell({ children, profile }: AppShellProps) {
 
   async function handleLogout() {
     await supabase.auth.signOut()
-    router.push("/")
-    router.refresh()
+    window.location.assign("/")
   }
 
   return (

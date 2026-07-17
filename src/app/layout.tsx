@@ -62,7 +62,12 @@ export default function RootLayout({
         {children}
         <Toaster richColors position="top-center" />
         <Script id="sw" strategy="afterInteractive">{`
-          if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js')
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').then(function(reg) {
+              reg.update();
+              if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }).catch(function() {});
+          }
         `}</Script>
       </body>
     </html>

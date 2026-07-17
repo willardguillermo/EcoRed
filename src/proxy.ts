@@ -3,6 +3,15 @@ import { NextResponse, type NextRequest } from "next/server"
 
 const PUBLIC_ROUTES = ["/", "/auth/login", "/auth/register"]
 
+function isPublicRoute(pathname: string) {
+  return PUBLIC_ROUTES.includes(pathname) || pathname.startsWith("/join/")
+}
+
+function getSafeNextPath(request: NextRequest) {
+  const next = request.nextUrl.searchParams.get("next")
+  return next?.startsWith("/") && !next.startsWith("//") ? next : "/dashboard"
+}
+
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
@@ -30,7 +39,7 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
-  const isPublic = PUBLIC_ROUTES.some((route) => pathname === route)
+  const isPublic = isPublicRoute(pathname)
 
   if (!user && !isPublic) {
     // API routes devuelven JSON 401, no redirect HTML
@@ -40,11 +49,13 @@ export async function proxy(request: NextRequest) {
         headers: { "Content-Type": "application/json" },
       })
     }
-    return NextResponse.redirect(new URL("/auth/login", request.url))
+    const loginUrl = new URL("/auth/login", request.url)
+    loginUrl.searchParams.set("next", `${pathname}${request.nextUrl.search}`)
+    return NextResponse.redirect(loginUrl)
   }
 
   if (user && (pathname === "/auth/login" || pathname === "/auth/register")) {
-    return NextResponse.redirect(new URL("/dashboard", request.url))
+    return NextResponse.redirect(new URL(getSafeNextPath(request), request.url))
   }
 
   return supabaseResponse

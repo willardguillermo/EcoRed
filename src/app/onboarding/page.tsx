@@ -37,7 +37,7 @@ export default async function OnboardingPage() {
       </header>
 
       <main className="flex-1 flex items-start justify-center px-4 py-10">
-        <OnboardingWizard userId={user.id} />
+        <OnboardingWizard />
       </main>
     </div>
   )

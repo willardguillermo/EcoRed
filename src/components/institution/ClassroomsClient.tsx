@@ -29,7 +29,7 @@ type Props = {
 
 export function ClassroomsClient({ classrooms, stats, appUrl }: Props) {
   const router             = useRouter()
-  const [pending, start]   = useTransition()
+  const [, start]          = useTransition()
   const [open,    setOpen] = useState(false)
   const [copied,  setCopied] = useState<string | null>(null)
 

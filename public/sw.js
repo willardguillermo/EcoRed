@@ -1,8 +1,20 @@
-const CACHE = "ecored-v1"
-const SHELL = ["/", "/dashboard", "/scan", "/map", "/chat", "/manifest.json"]
+const CACHE = "ecored-v2"
+const STATIC_ASSETS = [
+  "/manifest.json",
+  "/icon.svg",
+  "/icon-192.png",
+  "/icon-512.png",
+  "/icon-512-maskable.png",
+  "/apple-touch-icon.png",
+]
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()))
+  e.waitUntil(
+    caches
+      .open(CACHE)
+      .then((c) => c.addAll(STATIC_ASSETS))
+      .then(() => self.skipWaiting())
+  )
 })
 
 self.addEventListener("activate", (e) => {
@@ -13,11 +25,29 @@ self.addEventListener("activate", (e) => {
   )
 })
 
+self.addEventListener("message", (e) => {
+  if (e.data?.type === "SKIP_WAITING") self.skipWaiting()
+})
+
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return
   const url = new URL(e.request.url)
-  // API y Supabase siempre en red
-  if (url.pathname.startsWith("/api/") || url.hostname.includes("supabase")) return
+
+  if (url.origin !== self.location.origin) return
+  if (url.pathname.startsWith("/api/")) return
+
+  if (e.request.mode === "navigate") {
+    e.respondWith(fetch(e.request))
+    return
+  }
+
+  const isStaticAsset =
+    url.pathname.startsWith("/_next/static/") ||
+    STATIC_ASSETS.includes(url.pathname) ||
+    /\.(?:css|js|svg|png|jpg|jpeg|gif|webp|ico|woff2?)$/.test(url.pathname)
+
+  if (!isStaticAsset) return
+
   e.respondWith(
     caches.match(e.request).then((cached) => {
       const network = fetch(e.request).then((res) => {
