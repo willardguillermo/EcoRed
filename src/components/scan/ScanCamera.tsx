@@ -34,6 +34,50 @@ const CATEGORY_STYLE: Record<WasteCategory, { color: string; bg: string; icon: R
   other:      { color: "text-gray-600",   bg: "bg-gray-50   border-gray-200",   icon: Trash2,        label: "Otro"        },
 }
 
+async function prepareImageForScan(original: File): Promise<File> {
+  if (!original.type.startsWith("image/") || original.type === "image/gif") return original
+
+  const maxSide = 1600
+  const maxKeepSize = 3 * 1024 * 1024
+  const objectUrl = URL.createObjectURL(original)
+
+  try {
+    const image = new Image()
+    image.src = objectUrl
+    await image.decode()
+
+    const longestSide = Math.max(image.naturalWidth, image.naturalHeight)
+    const scale = longestSide > maxSide ? maxSide / longestSide : 1
+
+    if (scale === 1 && original.type === "image/jpeg" && original.size <= maxKeepSize) {
+      return original
+    }
+
+    const canvas = document.createElement("canvas")
+    canvas.width = Math.max(1, Math.round(image.naturalWidth * scale))
+    canvas.height = Math.max(1, Math.round(image.naturalHeight * scale))
+
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return original
+
+    ctx.fillStyle = "#fff"
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height)
+
+    const blob = await new Promise<Blob | null>((resolve) => {
+      canvas.toBlob(resolve, "image/jpeg", 0.86)
+    })
+
+    if (!blob) return original
+    const name = original.name.replace(/\.[^.]+$/, "") || "scan"
+    return new File([blob], `${name}.jpg`, { type: "image/jpeg" })
+  } catch {
+    return original
+  } finally {
+    URL.revokeObjectURL(objectUrl)
+  }
+}
+
 export function ScanCamera() {
   const [state,    setState]    = useState<State>("idle")
   const [preview,  setPreview]  = useState<string | null>(null)
@@ -58,6 +102,10 @@ export function ScanCamera() {
   useEffect(() => {
     return () => { streamRef.current?.getTracks().forEach(t => t.stop()) }
   }, [])
+
+  useEffect(() => {
+    return () => { if (preview) URL.revokeObjectURL(preview) }
+  }, [preview])
 
   function stopStream() {
     streamRef.current?.getTracks().forEach(t => t.stop())
@@ -89,26 +137,28 @@ export function ScanCamera() {
       if (!blob) return
       const captured = new File([blob], "capture.jpg", { type: "image/jpeg" })
       stopStream()
-      loadFile(captured)
+      void loadFile(captured)
     }, "image/jpeg", 0.92)
   }
 
-  function loadFile(f: File) {
-    setFile(f)
-    setPreview(URL.createObjectURL(f))
+  async function loadFile(f: File) {
+    setError("")
+    const prepared = await prepareImageForScan(f)
+    setFile(prepared)
+    setPreview(URL.createObjectURL(prepared))
     setState("preview")
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0]
-    if (f) loadFile(f)
+    if (f) void loadFile(f)
   }
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault()
     setDragging(false)
     const f = e.dataTransfer.files?.[0]
-    if (f && f.type.startsWith("image/")) loadFile(f)
+    if (f && f.type.startsWith("image/")) void loadFile(f)
   }
 
   const analyze = useCallback(async () => {
